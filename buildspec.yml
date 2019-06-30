@@ -7,7 +7,7 @@ environment_variables:
 phases:
   install:
     runtime-versions:
-      - nodejs: 10
+      nodejs: 10
     commands:
       - echo `npm -v`
       - echo NODE_ENV=$NODE_ENV
