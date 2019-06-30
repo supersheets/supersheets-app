@@ -95,7 +95,9 @@ export default new Vuex.Store({
       return state.sheet
     },
     async deleteSheet({dispatch, commit, state, getters}, { id }) {
-
+      let res = (await state.axios.delete(`${id}`)).data
+      commit('setSheet', { title: "Deleted" })
+      return res
     }
   }
 })
