@@ -6,7 +6,7 @@ import store from './store'
 // Third party dependencies
 import auth0 from 'auth0-js'
 import 'bulma/css/bulma.css'
-import hljs from 'highlight.js'
+import '@fortawesome/fontawesome-free/css/all.css'
 
 store.dispatch('checkSession')
 
