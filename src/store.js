@@ -8,6 +8,7 @@ Vue.use(Vuex)
 
 // Auth0 Configuration
 import auth0 from 'auth0-js'
+import router from './router';
 const config = {
   domain: process.env.VUE_APP_AUTH0_DOMAIN,
   clientID: process.env.VUE_APP_AUTH0_CLIENTID,
@@ -90,13 +91,14 @@ export default new Vuex.Store({
       return state.sheet
     },
     async reloadSheet({dispatch, commit, state, getters}, { id }) {
+      await state.axios.get(`${id}/meta`)
       let sheet = (await state.axios.get(`${id}/load`)).data
       commit('setSheet', sheet)
       return state.sheet
     },
     async deleteSheet({dispatch, commit, state, getters}, { id }) {
       let res = (await state.axios.delete(`${id}`)).data
-      commit('setSheet', { title: "Deleted" })
+      commit('setSheet', { title: "Loading ..." })
       return res
     }
   }

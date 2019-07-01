@@ -114,7 +114,7 @@
           <p>Are you sure you want to delete this Supersheet?</p>
         </section>
         <footer class="modal-card-foot">
-          <button class="button is-danger" v-on:click="deleteAction">Delete Supersheet</button>
+          <button :class="{'button':true, 'is-danger':true, 'is-loading': deleting}" v-on:click="deleteAction">Delete Supersheet</button>
           <button class="button" v-on:click="closeDelete">Cancel</button>
         </footer>
       </div>
@@ -134,6 +134,7 @@ export default {
   data: () => {
     return {
       loading: false,
+      deleting: false,
       showdelete: false,
       selected: "Documentation",
       sheetdata: { }
@@ -161,13 +162,17 @@ export default {
       'deleteSheet'
     ]),
     async reload() {
-      console.log("reload")
+      console.log('reload clicked')
       this.loading = true
       await this.reloadSheet({ id: this.id })
       this.loading = false
     },
     async deleteAction() {
+      this.deleting = true
       await this.deleteSheet({ id: this.id })
+      this.deleting = false
+      this.showdelete = false
+      this.$router.push(`/`)
     },
     showDelete() {
       this.showdelete = true
