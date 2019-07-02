@@ -81,6 +81,10 @@ export default new Vuex.Store({
       }
     },
     // SHEET ACTIONS
+    async getSheets({dispatch, commit, state, getters}) {
+      let sheets = (await state.axios.get(`sheets`)).data
+      return sheets
+    },
     async getSheet({dispatch, commit, state, getters}, { id, force }) {
       let sheet = (await state.axios.get(`${id}`)).data
       if (!sheet || !sheet.id) {

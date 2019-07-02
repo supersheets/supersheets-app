@@ -200,7 +200,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 p.updated-at .help {
   padding: .4rem 0 .4rem 0
 }
