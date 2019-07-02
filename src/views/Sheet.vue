@@ -59,7 +59,7 @@
             <div class="overview" v-show="selected == 'Overview'">
               <h2 class="title is-4">Overview</h2>
               <p>
-                This Supersheet has <strong>{{ sheet.sheets.length }} sheets</strong> and a total of <strong>{{ sheet.nrows }} rows</strong> of data. It is based in the <strong>{{ sheet.local }}</strong> locale and <strong>{{ sheet.tz }}</strong> timezone.
+                This Supersheet has <strong>{{ sheet.sheets && sheet.sheets.length || -1 }} sheets</strong> and a total of <strong>{{ sheet.nrows }} rows</strong> of data. It is based in the <strong>{{ sheet.local }}</strong> locale and <strong>{{ sheet.tz }}</strong> timezone.
               </p>
             </div>
             <div class="sheetdata" v-show="selected.startsWith('sheet')">
