@@ -21,7 +21,7 @@ phases:
       - echo Build started on `date`
       - echo Build CODEBUILD_SOURCE_VERSION $CODEBUILD_SOURCE_VERSION
       - echo Build CODEBUILD_SRC_DIR $CODEBUILD_SRC_DIR
-      - NODE_ENV=production npm run build
+      - NODE_ENV=production npm run build -- --mode staging
   post_build:
     commands:
       - aws s3 cp $CODEBUILD_SRC_DIR/dist/fonts/ s3://$S3_BUCKET/fonts/ --acl public-read --recursive --cache-control 'max-age=31104000'
