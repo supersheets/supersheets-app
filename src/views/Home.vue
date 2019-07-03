@@ -5,6 +5,7 @@
         <h1 class="title is-2">All Sheets</h1>
         <div class="columns">
           <div class="column">
+            <p v-show="loadingsheets">Loading ...</p>
             <div class="card" v-for="sheet in sheets">
               <div class="card-content">
                 <p class="title is-4">
@@ -60,6 +61,7 @@ export default {
   data: () => {
     return {
       loading: false,
+      loadingsheets: true,
       url: "",
       sheets: [ ]
     }
@@ -88,6 +90,7 @@ export default {
   async created() {
     this.sheets = await this.getSheets()
     this.sheets.forEach(sheet => sheet.updated_at = moment(sheet.updated_at))
+    this.loadingsheets = false
   }
 }
 </script>
