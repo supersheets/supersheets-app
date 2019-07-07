@@ -42,7 +42,7 @@ export default new Vuex.Store({
         sub: auth.idTokenPayload.sub,
         provider: auth.idTokenPayload.sub.split('|')[0],
         domain: calcUserDomain(auth.idTokenPayload),
-        token: auth.accessToken, //auth.idToken, 
+        token: auth.idToken, // so backend gets user info like email, 
         expiresIn: auth.expiresIn,
         expiresAt: calcExpiresAt(new Date(), auth.expiresIn),
       }
