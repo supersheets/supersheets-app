@@ -1,9 +1,9 @@
 <template>
   <div class="sheet">
     <section class="section header">
-      <div class="container">
-        <h1 class="title is-2">{{ sheet.title }}</h1>
-        <div class="field is-grouped">
+      <div class="container" v-show="!error">
+        <h1 class="title is-2" v-show="!error">{{ sheet.title }}</h1>
+        <div class="field is-grouped" v-show="sheet.id">
           <p class="control">
             <a :class="{'button':true, 'is-info': true, 'is-outlined': true }" :href="sheet.url" target="_blank">
               <span class="icon">
@@ -16,13 +16,30 @@
             <a :class="{'button':true, 'is-loading':loading, 'is-success': true }" v-on:click="reload">Reload Data</a>
           </p>
           <p class="control updated-at">
-            <span class="help" v-show="!loading">Last updated on {{ updated }}</span>
+            <span class="help">Last updated on {{ updated }}</span>
             <span class="help" v-show="loading">Loading ...</span>
           </p>
         </div>
       </div>
+      <div class="container" v-show="error">
+        <h1 class="title is-2" v-show="error">Error</h1>
+        <article class="message is-danger">
+          <div class="message-header">
+            <p>{{ error.status }} {{ error.message }}</p>
+          </div>
+          <div class="message-body">
+            <p>There was an error trying to load this Supersheet.</p> 
+            <br/>
+            <div class="field is-grouped">
+              <p class="control">
+                <router-link class="button is-info is-outlined" to="/" v-show="user">View Sheets</router-link>
+              </p>
+            </div>
+          </div>
+        </article>
+      </div>
     </section>
-    <section class="section metadata">
+    <section class="section metadata" v-show="sheet.id">
       <div class="container">
         <div class="columns">
           <div class="column is-2">
@@ -97,7 +114,7 @@
         <hr/>
         <div class="field is-grouped">
           <p class="control">
-            <a class="button is-danger is-outlined" v-on:click="showDelete">Delete Supersheet</a>
+            <a class="button is-danger is-outlined" v-on:click="showDelete" v-if="sheet.id">Delete Supersheet</a>
           </p>
         </div>
       </div>
@@ -136,6 +153,7 @@ export default {
       loading: false,
       deleting: false,
       showdelete: false,
+      error: false,
       selected: "Documentation",
       sheetdata: { }
     }
@@ -195,7 +213,22 @@ export default {
     }
   },
   async created() {
-    let sheet = await this.getSheet({ id: this.id, force: true })
+    try {
+      await this.getSheet({ id: this.id, force: true })
+    } catch (err) {
+      console.log(err.response)
+      if (err.response && err.response.data) {
+        this.error = {
+          status: err.response.status,
+          message: err.response.data.errorMessage
+        }
+      } else {
+        this.error = {
+          status: err.status,
+          message: "Unknown Error"
+        }
+      }
+    }
   }
 }
 </script>
