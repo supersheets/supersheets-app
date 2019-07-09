@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 const axios = require('axios')
-
+const uuidV4 = require('uuid/v4')
 
 Vue.use(Vuex)
 
@@ -27,7 +27,8 @@ export default new Vuex.Store({
       baseURL: process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT,
       // timeout: 1000,
       // headers: { 'X-Custom-Header': 'foobar'}
-    })
+    }),
+    notifications: [ ]
   },
   getters: {
     isAuthenticated: (state, getters) => {
@@ -50,6 +51,23 @@ export default new Vuex.Store({
     },
     setSheet(state, sheet) {
       state.sheet = sheet
+    },
+    // NOTIFICATIONS
+    addNotification(state, { message, level }) {
+      let note = {
+        uuid: uuidV4(),
+        message: message,
+        classObject: { 'notification': true, 'show': true }
+      }
+      note.classObject[`is-${level || 'info' }`] = true
+      state.notifications.push(note)
+      setTimeout(() => {
+        note.classObject['show'] = false
+        state.notifications = state.notifications.filter(n => n.uuid != note.uuid)
+      }, 5000)
+    },
+    removeNotification(state, uuid) {
+      state.notifications = state.notifications.filter(note => note.uuid != uuid)
     }
   },
   actions: {

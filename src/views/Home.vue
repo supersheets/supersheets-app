@@ -75,6 +75,10 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([
+      'addNotification',
+      'removeNotification'
+    ]),
     ...mapActions([
       'getSheets',
       'reloadSheet'
@@ -82,9 +86,18 @@ export default {
     async reload() {
       console.log("reload", this.docid)
       this.loading = true
-      await this.reloadSheet({ id: this.docid })
-      this.loading = false
-      this.$router.push(`/sheets/${this.docid}`)
+      try {
+        await this.reloadSheet({ id: this.docid })
+        this.$router.push(`/sheets/${this.docid}`)
+      } catch (err) {
+        console.log(err.response)
+        this.addNotification({
+          message: `${err.response.status} ${err.response.data.errorMessage}`,
+          level: "danger"
+        })
+      } finally {
+        this.loading = false
+      }
     }
   },
   async created() {
