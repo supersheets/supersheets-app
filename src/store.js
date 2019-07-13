@@ -28,7 +28,8 @@ export default new Vuex.Store({
       // timeout: 1000,
       // headers: { 'X-Custom-Header': 'foobar'}
     }),
-    notifications: [ ]
+    notifications: [ ],
+    mode: process.env.VUE_APP_MODE
   },
   getters: {
     isAuthenticated: (state, getters) => {
