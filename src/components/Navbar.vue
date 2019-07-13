@@ -19,7 +19,8 @@
       
       <div class="navbar-end">
         <div class="navbar-item" v-if="!user">
-          <div class="buttons">
+          Loading ...
+          <div class="buttons" v-if="false">
             <a class="button is-info" v-if="false">
               Sign up
             </a>
