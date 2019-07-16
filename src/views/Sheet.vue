@@ -42,6 +42,12 @@
                   <a :class="menuClass(`sheet-${s.title}`)" v-on:click="selectmenu(`sheet-${s.title}`)">{{ s.title }}</a>
                 </li>
               </ul>
+              <p class="menu-label">
+                Management
+              </p>
+               <ul class="menu-list">
+                <li><a :class="menuClass('Cache')" v-on:click="selectmenu('Cache')">Cache</a></li>
+              </ul>
             </aside>
           </div>
           <div class="column">
@@ -87,6 +93,27 @@
               <p>Below is the first row of data in the sheet in JSON format:</p>
               <br/>
               <pre><code>{{ JSON.stringify(sheetdata.preview, null, 2) }}</code></pre>
+            </div>
+
+            <div class="cache" v-show="selected == 'Cache'">
+              <h2 class="title is-4">Cache Management</h2>
+              <p v-show="!cache">Loading ...</p>
+              <p v-if="cache">
+                The stored query cache for this Supersheet currently has <strong>{{ cache.n }} items</strong> cached. 
+                These cached queries will expire in <strong>{{ cache.ttl }} seconds</strong>. 
+                The items are cached using the key <strong>{{ cache.key }}</strong>
+              </p>
+              <br/>
+              <div class="field is-grouped" v-show="sheet.id">
+                <p class="control">
+                  <a :class="{'button':true, 'is-info': true, 'is-loading': false }" v-on:click="cacheInfoAction(true)">
+                    <span>Get Values</span>
+                  </a>
+                </p>
+                <p class="control">
+                  <a :class="{'button':true, 'is-danger': true, 'is-loading': false }" v-on:click="clearCacheAction()">Clear Cache</a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -137,7 +164,8 @@ export default {
       deleting: false,
       showdelete: false,
       selected: "Documentation",
-      sheetdata: { }
+      sheetdata: { },
+      cache: { }
     }
   },
   computed: {
@@ -163,7 +191,9 @@ export default {
     ...mapActions([
       'getSheet',
       'reloadSheet',
-      'deleteSheet'
+      'deleteSheet',
+      'deleteCache',
+      'getCacheInfo'
     ]),
     async reload() {
       this.loading = true
@@ -203,19 +233,30 @@ export default {
         this.showdelete = false
       }
     },
+    async clearCacheAction() {
+      console.log("clearCacheACtion")
+      await this.deleteCache({ id: this.id })
+    },
+    async cacheInfoAction(values) {
+      this.cache = await this.getCacheInfo({ id: this.id, values})
+      console.log("Cache", this.cache)
+    },
     showDelete() {
       this.showdelete = true
     },
     closeDelete() {
       this.showdelete = false
     },
-    selectmenu(name) {
+    async selectmenu(name) {
       if (name.startsWith("sheet-")) {
         let title = name.substring(6)
         console.log('selectmenu', name.substring(6))
         this.sheetdata = this.sheet.sheets.find(s => s.title == title)
       }
       this.selected = name
+      if (name == 'Cache') {
+        await this.cacheInfoAction(false)
+      }
     },
     menuClass(name) {
       return {

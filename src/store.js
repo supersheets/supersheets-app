@@ -117,12 +117,28 @@ export default new Vuex.Store({
       await state.axios.get(`${id}/meta`)
       let sheet = (await state.axios.get(`${id}/load`)).data
       commit('setSheet', sheet)
-      return state.sheet
+      let deleteCache = await dispatch('deleteCache', { id })
+      return { sheet: state.sheet, deleteCache }
     },
     async deleteSheet({dispatch, commit, state, getters}, { id }) {
       let res = (await state.axios.delete(`${id}`)).data
       commit('setSheet', { title: "Loading ..." })
-      return res
+      let deleteCache = await dispatch('deleteCache', { id })
+      return { delete: res, deleteCache }
+    },
+    // CACHE ACTIONS
+    async deleteCache({dispatch, commit, state, getters}, { id }) {
+      let del = (await state.axios.delete(`${id}/find/cache`)).data
+      let cache = await dispatch('getCacheInfo', { id })
+      return { del, cache }
+    },
+    async getCacheInfo({dispatch, commit, state, getters}, { id, values }) {
+      let url = `${id}/find/cache`
+      if (values) {
+        url = `${url}?values=true`
+      }
+      let info = (await state.axios.get(url)).data
+      return info
     }
   }
 })
