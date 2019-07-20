@@ -1,171 +1,86 @@
 <template>
   <div class="sheet">
-    <section class="section header">
-      <div class="container">
-        <h1 class="title is-2">{{ sheet.title }}</h1>
-        <div class="field is-grouped" v-show="sheet.id">
-          <p class="control">
-            <a :class="{'button':true, 'is-info': true, 'is-outlined': true }" :href="sheet.url" target="_blank">
-              <span class="icon">
-                <i class="fas fa-external-link-alt"></i>
-              </span>
-              <span>Google Sheet</span>
-            </a>
-          </p>
-          <p class="control">
-            <a :class="{'button':true, 'is-loading':loading, 'is-success': true }" v-on:click="reload">Reload Data</a>
-          </p>
-          <p class="control updated-at">
-            <span class="help" v-show="!loading">Last updated on {{ updated }}</span>
-            <span class="help" v-show="loading">Loading ...</span>
-          </p>
-        </div>
-      </div>
-    </section>
-    <section class="section metadata" v-show="sheet.id">
-      <div class="container">
-        <div class="columns">
-          <div class="column is-2">
-            <aside class="menu">
-              <p class="menu-label">
-                API
-              </p>
-              <ul class="menu-list">
-                <li><a :class="menuClass('Documentation')" v-on:click="selectmenu('Documentation')">Documentation</a></li>
-              </ul>
-              <p class="menu-label">
-                Sheet Data
-              </p>
+  <section class="section">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-2">
+           <aside class="menu">
               <ul class="menu-list">
                 <li><a :class="menuClass('Overview')" v-on:click="selectmenu('Overview')">Overview</a></li>
-                <li v-for="s in sheet.sheets">
-                  <a :class="menuClass(`sheet-${s.title}`)" v-on:click="selectmenu(`sheet-${s.title}`)">{{ s.title }}</a>
-                </li>
-              </ul>
-              <p class="menu-label">
-                Management
-              </p>
-               <ul class="menu-list">
+                <li><a :class="menuClass('API')" v-on:click="selectmenu('API')">API</a></li>
+                <li><a :class="menuClass('Schema')" v-on:click="selectmenu('Schema')">Schema</a></li>
+                <li><a :class="menuClass('Source')" v-on:click="selectmenu('Source')">Source</a></li>
                 <li><a :class="menuClass('Cache')" v-on:click="selectmenu('Cache')">Cache</a></li>
               </ul>
             </aside>
-          </div>
-          <div class="column">
-            <div class="documentation" v-show="selected == 'Documentation'">
-              <h2 class="title is-4">API Documentation</h2>
-              <article class="message is-warning">
-                <div class="message-header">
-                  <p>Endpoint</p>
-                </div>
-                <div class="message-body">
-                  {{ endpoint }}
-                </div>
-              </article>
-            </div>
-            <div class="overview" v-show="selected == 'Overview'">
-              <h2 class="title is-4">Overview</h2>
-              <p>
-                This Supersheet has <strong>{{ sheet.sheets && sheet.sheets.length || -1 }} sheets</strong> and a total of <strong>{{ sheet.nrows }} rows</strong> of data. It is based in the <strong>{{ sheet.local }}</strong> locale and <strong>{{ sheet.tz }}</strong> timezone.
-              </p>
-            </div>
-            <div class="sheetdata" v-show="selected.startsWith('sheet')">
-              <h2 class="title is-4">{{ sheetdata.title }}</h2>
-              <p>
-                This sheet has <strong>{{ sheetdata.ncols }} columns</strong> and <strong>{{ sheetdata.nrows }} rows</strong> of data.
-              </p>
-              <br/>
-              <h3 class="title is-5">Columns</h3>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Data Type</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="col of sheetdata.columns">
-                    <td>{{ col }}</td>
-                    <td>String</td>
-                  </tr>
-                </tbody>
-              </table>
-              <h3 class="title is-5">Rows</h3>
-              <p>Below is the first row of data in the sheet in JSON format:</p>
-              <br/>
-              <pre><code>{{ JSON.stringify(sheetdata.preview, null, 2) }}</code></pre>
-            </div>
-
-            <div class="cache" v-show="selected == 'Cache'">
-              <h2 class="title is-4">Cache Management</h2>
-              <p v-show="!cache">Loading ...</p>
-              <p v-if="cache">
-                The stored query cache for this Supersheet currently has <strong>{{ cache.n }} items</strong> cached. 
-                These cached queries will expire in <strong>{{ cache.ttl }} seconds</strong>. 
-                The items are cached using the key <strong>{{ cache.key }}</strong>
-              </p>
-              <br/>
-              <div class="field is-grouped" v-show="sheet.id">
-                <p class="control">
-                  <a :class="{'button':true, 'is-info': true, 'is-loading': false }" v-on:click="cacheInfoAction(true)">
-                    <span>Get Values</span>
-                  </a>
-                </p>
-                <p class="control">
-                  <a :class="{'button':true, 'is-danger': true, 'is-loading': false }" v-on:click="clearCacheAction()">Clear Cache</a>
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-    </section>
-    <section class="section dangerzone">
-      <div class="container">
-        <hr/>
-        <div class="field is-grouped">
-          <p class="control">
-            <a class="button is-danger is-outlined" v-on:click="showDelete" v-if="sheet.id">Delete Supersheet</a>
-          </p>
+        <div class="column">
+          <Overview v-show="isSelected('Overview')"></Overview>
+          <API v-show="isSelected('API')"></API>
+          <Schema v-show="isSelected('Schema')"></Schema>
+          <SheetData v-show="isSelected('Source')"></SheetData>
+          <Cache v-show="isSelected('Cache')"></Cache>
         </div>
-      </div>
-    </section>
-    <div :class="{'modal':true, 'is-active': showdelete }">
-      <div class="modal-background"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">Delete Confirmation</p>
-          <button class="delete" aria-label="close" v-on:click="closeDelete"></button>
-        </header>
-        <section class="modal-card-body">
-          <!-- Content ... -->
-          <p>Are you sure you want to delete this Supersheet?</p>
-        </section>
-        <footer class="modal-card-foot">
-          <button :class="{'button':true, 'is-danger':true, 'is-loading': deleting}" v-on:click="deleteAction">Delete Supersheet</button>
-          <button class="button" v-on:click="closeDelete">Cancel</button>
-        </footer>
       </div>
     </div>
+  </section>
+  <section class="section dangerzone">
+    <div class="container">
+      <hr/>
+      <div class="field is-grouped">
+        <p class="control">
+          <a class="button is-danger is-outlined" v-on:click="showDelete" v-if="sheet.id">Delete Supersheet</a>
+        </p>
+      </div>
+    </div>
+  </section>
+  <div :class="{'modal':true, 'is-active': showdelete }">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Delete Confirmation</p>
+        <button class="delete" aria-label="close" v-on:click="closeDelete"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <p>Are you sure you want to delete this Supersheet?</p>
+      </section>
+      <footer class="modal-card-foot">
+        <button :class="{'button':true, 'is-danger':true, 'is-loading': deleting}" v-on:click="deleteAction">Delete Supersheet</button>
+        <button class="button" v-on:click="closeDelete">Cancel</button>
+      </footer>
+    </div>
   </div>
+</div>
 </template>
 
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
+
+import Overview from '@/components/Overview.vue'
+import Cache from '@/components/Cache.vue'
+import SheetData from '@/components/SheetData.vue'
+import Schema from '@/components/Schema.vue'
+import API from '@/components/API.vue'
+
 const moment = require('moment')
 
 export default {
   name: 'sheet',
   props: [ 'id' ],
   components: {
+    Overview,
+    Cache,
+    SheetData,
+    Schema,
+    API
   },
   data: () => {
     return {
       loading: false,
       deleting: false,
       showdelete: false,
-      selected: "Documentation",
-      sheetdata: { },
-      cache: { }
+      selected: "Overview",
     }
   },
   computed: {
@@ -191,9 +106,7 @@ export default {
     ...mapActions([
       'getSheet',
       'reloadSheet',
-      'deleteSheet',
-      'deleteCache',
-      'getCacheInfo'
+      'deleteSheet'
     ]),
     async reload() {
       this.loading = true
@@ -233,14 +146,6 @@ export default {
         this.showdelete = false
       }
     },
-    async clearCacheAction() {
-      console.log("clearCacheACtion")
-      await this.deleteCache({ id: this.id })
-    },
-    async cacheInfoAction(values) {
-      this.cache = await this.getCacheInfo({ id: this.id, values})
-      console.log("Cache", this.cache)
-    },
     showDelete() {
       this.showdelete = true
     },
@@ -248,23 +153,19 @@ export default {
       this.showdelete = false
     },
     async selectmenu(name) {
-      if (name.startsWith("sheet-")) {
-        let title = name.substring(6)
-        console.log('selectmenu', name.substring(6))
-        this.sheetdata = this.sheet.sheets.find(s => s.title == title)
-      }
       this.selected = name
-      if (name == 'Cache') {
-        await this.cacheInfoAction(false)
-      }
     },
     menuClass(name) {
       return {
-        "is-active": (this.selected == name)
+        "is-active": this.isSelected(name)
       }
+    },
+    isSelected(name) {
+      return this.selected == name
     }
   },
   async created() {
+    console.log("created")
     try {
       await this.getSheet({ id: this.id, force: true })
     } catch (err) {

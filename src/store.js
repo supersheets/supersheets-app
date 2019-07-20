@@ -126,19 +126,41 @@ export default new Vuex.Store({
       let deleteCache = await dispatch('deleteCache', { id })
       return { delete: res, deleteCache }
     },
+    async saveSheet({dispatch, commit, state, getters}, { id, metadata }) {
+      let sheet = (await state.axios.patch(`${id}/meta`, metadata)).data
+      commit('setSheet', sheet)
+      return sheet
+    },
     // CACHE ACTIONS
     async deleteCache({dispatch, commit, state, getters}, { id }) {
-      let del = (await state.axios.delete(`${id}/find/cache`)).data
-      let cache = await dispatch('getCacheInfo', { id })
-      return { del, cache }
+      try {
+        let del = (await state.axios.delete(`${id}/find/cache`)).data
+        return { n: 0, ttl: -1, key: null }
+      } catch (err) {
+        if (err.response.status == 404) {
+          // this just means the cache is not initialized so we just don'
+          return { n: 0, ttl: -1, key: null }
+        } else {
+          throw err
+        }
+      }
     },
     async getCacheInfo({dispatch, commit, state, getters}, { id, values }) {
       let url = `${id}/find/cache`
       if (values) {
         url = `${url}?values=true`
       }
-      let info = (await state.axios.get(url)).data
-      return info
+      try {
+        let info = (await state.axios.get(url)).data
+        return info
+      } catch (err) {
+        if (err.response.status == 404) {
+          // this just means the cache is not initialized so we just don'
+          return { n: 0, ttl: -1, key: null }
+        } else {
+          throw err
+        }
+      }
     }
   }
 })
