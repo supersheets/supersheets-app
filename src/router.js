@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import Account from './views/Account.vue'
 import Sheet from './views/Sheet.vue'
 import Callback from './views/Callback.vue'
 import Logout from './views/Logout.vue'
@@ -48,5 +49,18 @@ export default new Router({
         }
       }
     },
+    {
+      path: '/account',
+      name: 'account',
+      props: true,
+      component: Account,
+      beforeEnter: (to, from, next) => {
+        if (store.getters['isAuthenticated']) {
+          next()
+        } else {
+          store.dispatch('login', { returnTo: to.path })
+        }
+      }
+    }
   ]
 })

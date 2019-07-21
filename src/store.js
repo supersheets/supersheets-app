@@ -9,6 +9,7 @@ Vue.use(Vuex)
 // Auth0 Configuration
 import auth0 from 'auth0-js'
 import router from './router';
+import { stat } from 'fs';
 const config = {
   domain: process.env.VUE_APP_AUTH0_DOMAIN,
   clientID: process.env.VUE_APP_AUTH0_CLIENTID,
@@ -22,6 +23,7 @@ const webAuth = new auth0.WebAuth(config)
 export default new Vuex.Store({
   state: {
     user: null,
+    account: null,
     sheet: { title: "Loading ..." },
     axios: axios.create({
       baseURL: process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT,
@@ -34,6 +36,12 @@ export default new Vuex.Store({
   getters: {
     isAuthenticated: (state, getters) => {
       return state.user
+    },
+    idpToken: (state, getters) => {
+      const google = "google-oauth2"
+      if (!state.account) return null
+      let identity = state.account.identities.find(idp => idp.provider == google)
+      return identity && identity.access_token || null
     }
   },
   mutations: {
@@ -49,6 +57,9 @@ export default new Vuex.Store({
         expiresAt: calcExpiresAt(new Date(), auth.expiresIn),
       }
       state.axios.defaults.headers.common['Authorization'] = `Bearer ${state.user.token}`
+    },
+    setAccount(state, account) {
+      state.account = account
     },
     setSheet(state, sheet) {
       state.sheet = sheet
@@ -88,6 +99,7 @@ export default new Vuex.Store({
       console.log('handleAuthentication', authResult)
       var authResult = await parseHashPromise()
       commit('setUser', authResult)
+      await dispatch('getAccountInfo')
       var stateInfo = authResult.state && JSON.parse(atob(authResult.state)) 
       var returnTo = stateInfo && stateInfo.returnTo || '/sheets'
       return { user: state.user, returnTo }
@@ -97,6 +109,13 @@ export default new Vuex.Store({
       console.log("checkSession", authResult)
       if (authResult) {
         commit('setUser', authResult)
+        await dispatch('getAccountInfo')
+      }
+    },
+    async getAccountInfo({dispatch, commit, state, getters}) {
+      let account = (await state.axios.get(`oauth/idp`)).data
+      if (account) {
+        commit('setAccount', account)
       }
     },
     // SHEET ACTIONS

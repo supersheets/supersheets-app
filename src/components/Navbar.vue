@@ -34,6 +34,7 @@
             {{ user.email }}
           </a>
           <div class="navbar-dropdown">
+            <router-link class="navbar-item" to="/account">Account</router-link>
             <a class="navbar-item" v-on:click="logoutClick">
               Log out
             </a>
