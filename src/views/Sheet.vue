@@ -9,8 +9,9 @@
                 <li><a :class="menuClass('Overview')" v-on:click="selectmenu('Overview')">Overview</a></li>
                 <li><a :class="menuClass('API')" v-on:click="selectmenu('API')">API</a></li>
                 <li><a :class="menuClass('Schema')" v-on:click="selectmenu('Schema')">Schema</a></li>
-                <li><a :class="menuClass('Source')" v-on:click="selectmenu('Source')">Source</a></li>
                 <li><a :class="menuClass('Cache')" v-on:click="selectmenu('Cache')">Cache</a></li>
+                <li><a :class="menuClass('Database')" v-on:click="selectmenu('Database')">Database</a></li>
+                <li><a :class="menuClass('Source')" v-on:click="selectmenu('Source')">Source</a></li>
               </ul>
             </aside>
         </div>
@@ -20,6 +21,7 @@
           <Schema v-show="isSelected('Schema')" v-if="loaded"></Schema>
           <SheetData v-show="isSelected('Source')" v-if="loaded"></SheetData>
           <Cache v-show="isSelected('Cache')" v-if="loaded"></Cache>
+          <Database v-show="isSelected('Database')" v-if="loaded"></Database>
         </div>
       </div>
     </div>
@@ -61,6 +63,7 @@ import Overview from '@/components/Overview.vue'
 import Cache from '@/components/Cache.vue'
 import SheetData from '@/components/SheetData.vue'
 import Schema from '@/components/Schema.vue'
+import Database from '@/components/Database.vue'
 import API from '@/components/API.vue'
 
 const moment = require('moment')
@@ -73,6 +76,7 @@ export default {
     Cache,
     SheetData,
     Schema,
+    Database,
     API
   },
   data: () => {
