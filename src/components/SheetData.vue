@@ -1,41 +1,98 @@
 <template>
 <div class="overview">
   <h2 class="title is-3">Source</h2>
-  <p>
-    The datasource of this Supersheet is a Google Spreadsheet: <em><a :href="sheet.url" target="_blank">{{ sheet.title }}</a></em>. 
-    It has a total of <strong>{{ sheet.nrows }} rows</strong> across  <strong>{{ sheet.sheets && sheet.sheets.length || -1 }} sheets</strong>. 
-    It is based in the <strong>{{ sheet.local }}</strong> locale and <strong>{{ sheet.tz }}</strong> timezone.
-  </p>
+  <table class="table is-striped">
+    <tbody>
+      <tr>
+        <th>Datasource</th>
+        <td><span class="tag is-info datasource-type">Google Spreadsheet</span> <a :href="sheet.url" target="_blank">{{ sheet.title }}</a></td>
+      </tr>
+      <tr>
+        <th>Access Mode</th>
+        <td>{{ accessMode }}</td>
+      </tr>
+      <tr>
+        <th>Number of Sheets</th>
+        <td>{{ sheet.sheets && sheet.sheets.length || -1 }}</td>
+      </tr>
+      <tr>
+        <th>Number of Rows</th>
+        <td>{{ sheet.nrows }}</td>
+      </tr>
+      <tr>
+        <th>Timezone</th>
+        <td>{{ sheet.tz }}</td>
+      </tr>
+      <tr>
+        <th>Locale</th>
+        <td>{{ sheet.local }}</td>
+      </tr>
+    </tbody>
+  </table>
   <br/>
-  <div class="tabs">
+  <h3 class="title is-4">Sheets</h3>
+  <div class="tabs is-boxed">
     <ul>
       <li v-for="s in sheet.sheets" v-bind:key="s.title" :class="menuClass(s.title)">
         <a v-on:click="selectmenu(s.title)">{{ s.title }}</a>
       </li>
     </ul>
   </div>
-
   <div class="sheetdata" v-show="sheetdata.title">
-    <h4 class="title is-5">Columns ({{ sheetdata.ncols }})</h4>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Data Type</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="col of sheetdata.columns">
-          <td>{{ col }}</td>
-          <td>String</td>
-        </tr>
-      </tbody>
-    </table>
-    <h4 class="title is-5">Rows ({{ sheetdata.nrows }})</h4>
-    <p>Below is the first row of data in the sheet in JSON format:</p>
-    <br/>
-    <pre><code>{{ JSON.stringify(sheetdata.preview, null, 2) }}</code></pre>
+    <div class="columns">
+      <div class="column">
+        <h4 class="title is-5">Columns ({{ sheetdata.ncols }})</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Data Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="col of sheetdata.columns">
+                <td>{{ col }}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+      <div class="column">
+        <h4 class="title is-5">Rows ({{ sheetdata.nrows }})</h4>
+        <p>Below is the first row of data in the sheet in JSON format:</p>
+        <br/>
+        <pre><code>{{ JSON.stringify(sheetdata.preview, null, 2) }}</code></pre>
+      </div>
+    </div>
   </div>
+  <br/>
+  <hr/>
+  <h3 class="title is-4">Settings</h3>
+  <div class="columns">
+    <div class="column">
+      <div class="form">
+        <div class="field">
+          <label class="label">Access Mode</label>
+          <div class="control">
+            <div class="select">
+              <select v-model="access">
+                <option value="public">Public Access</option>
+                <option value="private">Private Access</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div class="field is-grouped">
+          <p class="control">
+            <a :class="{'button':true, 'is-success': true, 'is-loading': saving }" v-on:click="saveAction()">Save Settings</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="column"></div>
+  </div>
+</div>
 
 </div>
 </template>
@@ -50,9 +107,10 @@ export default {
   },
   data: () => {
     return {
-      loading: false,
+      saving: false,
       selected: '',
-      sheetdata: { }
+      sheetdata: { },
+      access: 'public'
     }
   },
   computed: {
@@ -60,6 +118,9 @@ export default {
       'user',
       'sheet'
     ]),
+    accessMode: function() {
+      return this.sheet && this.sheet.config && this.sheet.config.access || 'public'
+    }
   },
   methods: {
     ...mapMutations([
@@ -67,6 +128,7 @@ export default {
       'removeNotification'
     ]),
     ...mapActions([
+      'saveSheet'
     ]),
     selectmenu(title) {
       this.sheetdata = this.sheet.sheets.find(s => s.title == title)
@@ -80,35 +142,29 @@ export default {
     isSelected(title) {
       return this.selected == title
     },
-    async reload() {
-      this.loading = true
-      try {
-        await this.reloadSheet({ id: this.id })
-        this.addNotification({
-          message: `Reloaded successfully`,
-          level: "success"
-        })
-      } catch (err) {
-        console.log(err.response)
-        this.addNotification({
-          message: `${err.response.status} ${err.response.data.errorMessage}`,
-          level: "danger"
-        })
-      } finally {
-        this.loading = false
-      }
-    }
+    async saveAction() {
+      this.saving = true
+      let metadata = this.convertToConfig(this.access)
+      let res = await this.saveSheet({ id: this.sheet.id, metadata })
+      this.saving = false
+    },
+    convertToConfig(access) {
+      let config = this.sheet.config || { }
+      config.access = access
+      return { config }
+    },
   },
   async created() {
     this.sheetdata = this.sheet.sheets[0]
     this.selected = this.sheetdata.title
+    this.access = this.accessMode
   }
 }
 </script>
 
 <style scoped>
-p.updated-at .help {
-  padding: .4rem 0 .4rem 0
+span.tag.datasource-type {
+  margin-right: .5rem;
 }
 </style>
 

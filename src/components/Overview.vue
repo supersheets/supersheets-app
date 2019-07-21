@@ -48,7 +48,7 @@
 
   <br/>
   <br/>  
-  <h3 class="title is-4">Data Source</h3>
+  <h3 class="title is-4">Source</h3>
   <p>
     This Supersheet is backed by the Google Spreadsheet: <em><a :href="sheet.url" target="_blank">{{ sheet.title }}</a></em>. 
     It has a total of <strong>{{ sheet.nrows }} rows</strong> across  <strong>{{ sheet.sheets && sheet.sheets.length || -1 }} sheets</strong>. 
