@@ -38,10 +38,8 @@ export default new Vuex.Store({
       return state.user
     },
     idpToken: (state, getters) => {
-      const google = "google-oauth2"
       if (!state.account) return null
-      let identity = state.account.identities.find(idp => idp.provider == google)
-      return identity && identity.access_token || null
+      return getGoogleIDPTokenFromAccount(state.account)
     }
   },
   mutations: {
@@ -60,6 +58,7 @@ export default new Vuex.Store({
     },
     setAccount(state, account) {
       state.account = account
+      state.axios.defaults.headers.common['X-Supersheets-IDP-Authorization'] = `Bearer ${getGoogleIDPTokenFromAccount(state.account)}`
     },
     setSheet(state, sheet) {
       state.sheet = sheet
@@ -210,3 +209,9 @@ function checkSessionPromise() {
     })
   })
 }
+
+function getGoogleIDPTokenFromAccount(account) {
+  let identity = account.identities.find(idp => idp.provider == "google-oauth2")
+  return identity && identity.access_token || null
+}
+
