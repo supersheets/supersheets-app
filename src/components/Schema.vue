@@ -73,13 +73,6 @@ export default {
       'sheet'
     ])
   },
-  watch: {
-    sheet: async function(oldsheet, newsheet) {
-      console.log('watcher!', this.sheet.id)
-      this.metadata = this.initmetadata()
-      console.log("metadata", this.metadata)
-    }
-  },
   methods: {
     ...mapMutations([
       'addNotification',
@@ -128,6 +121,9 @@ export default {
         return col.sample
       }
     }
+  },
+  async created() {
+    this.metadata = this.initmetadata()
   }
 }
 </script>

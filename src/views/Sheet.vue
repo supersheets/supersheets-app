@@ -16,10 +16,10 @@
         </div>
         <div class="column">
           <Overview v-show="isSelected('Overview')"></Overview>
-          <API v-show="isSelected('API')"></API>
-          <Schema v-show="isSelected('Schema')"></Schema>
-          <SheetData v-show="isSelected('Source')"></SheetData>
-          <Cache v-show="isSelected('Cache')"></Cache>
+          <API v-show="isSelected('API')"  v-if="loaded"></API>
+          <Schema v-show="isSelected('Schema')" v-if="loaded"></Schema>
+          <SheetData v-show="isSelected('Source')" v-if="loaded"></SheetData>
+          <Cache v-show="isSelected('Cache')" v-if="loaded"></Cache>
         </div>
       </div>
     </div>
@@ -88,6 +88,9 @@ export default {
       'user',
       'sheet'
     ]),
+    loaded: function () {
+      return this.sheet && this.sheet.id || false
+    },
     updated: function () {
       if (!this.sheet || !this.sheet.updated_at) return "?"
       let d = moment(this.sheet.updated_at)

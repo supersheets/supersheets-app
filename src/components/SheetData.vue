@@ -7,7 +7,6 @@
     It is based in the <strong>{{ sheet.local }}</strong> locale and <strong>{{ sheet.tz }}</strong> timezone.
   </p>
   <br/>
-  <h3 class="title is-4">Sheets ({{ sheet.sheets && sheet.sheets.length }})</h3>
   <div class="tabs">
     <ul>
       <li v-for="s in sheet.sheets" v-bind:key="s.title" :class="menuClass(s.title)">
@@ -101,7 +100,8 @@ export default {
     }
   },
   async created() {
-
+    this.sheetdata = this.sheet.sheets[0]
+    this.selected = this.sheetdata.title
   }
 }
 </script>

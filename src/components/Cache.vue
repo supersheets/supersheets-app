@@ -65,11 +65,6 @@ export default {
       return `${moment().add(this.cache.ttl, 'seconds').fromNow()}`
     }
   },
-  watch: {
-    sheet: async function(oldsheet, newsheet) {
-      this.cache = await this.getCacheInfo({ id: this.sheet.id })
-    }
-  },
   methods: {
     ...mapMutations([
       'addNotification',
@@ -90,6 +85,9 @@ export default {
       this.cache = await this.getCacheInfo({ id: this.sheet.id, values})
       this.loading = false
     }
+  },
+  async created() {
+    this.cache = await this.getCacheInfo({ id: this.sheet.id })
   }
 }
 </script>
