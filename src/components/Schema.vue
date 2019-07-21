@@ -85,7 +85,6 @@ export default {
       this.saving = true
       let metadata = this.convertToConfig(this.metadata)
       let res = await this.saveSheet({ id: this.sheet.id, metadata })
-      console.log("SAVE", res)
       this.saving = false
     },
     initmetadata() {
@@ -103,12 +102,14 @@ export default {
       return { mode, columns }
     },
     convertToConfig(metadata) {
-      let mode = metadata.mode
+      let config = this.sheet.config || { }
+      config.mode = metadata.mode
       let datatypes = { }
       for (let col of metadata.columns) {
         datatypes[col.name] = col.datatype
       }
-      return { config: { mode, datatypes } }
+      config.datatypes = datatypes
+      return { config }
     },
     formatSample(col) {
       if (col.datatype == "String") {
