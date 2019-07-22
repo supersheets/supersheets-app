@@ -37,7 +37,7 @@ export default new Vuex.Store({
     isAuthenticated: (state, getters) => {
       return state.user
     },
-    idpToken: (state, getters) => {
+    idptoken: (state, getters) => {
       if (!state.account) return null
       return getGoogleIDPTokenFromAccount(state.account)
     }
@@ -58,7 +58,7 @@ export default new Vuex.Store({
     },
     setAccount(state, account) {
       state.account = account
-      state.axios.defaults.headers.common['X-Supersheets-IDP-Authorization'] = `Bearer ${getGoogleIDPTokenFromAccount(state.account)}`
+      //state.axios.defaults.headers.common['X-Supersheets-IDP-Authorization'] = `Bearer ${getGoogleIDPTokenFromAccount(state.account)}`
     },
     setSheet(state, sheet) {
       state.sheet = sheet
@@ -132,8 +132,9 @@ export default new Vuex.Store({
       return state.sheet
     },
     async reloadSheet({dispatch, commit, state, getters}, { id }) {
-      await state.axios.get(`${id}/meta`)
-      let sheet = (await state.axios.get(`${id}/load`)).data
+      let params = { idptoken: getters.idptoken }
+      await state.axios.get(`${id}/meta`, { params })
+      let sheet = (await state.axios.get(`${id}/load`, { params })).data
       commit('setSheet', sheet)
       let deleteCache = await dispatch('deleteCache', { id })
       return { sheet: state.sheet, deleteCache }
