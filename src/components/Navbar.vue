@@ -9,7 +9,6 @@
         <span aria-hidden="true"></span>
       </a>
     </div>
-
     <div class="navbar-menu">
       <div class="navbar-start">
         <div class="navbar-item" v-if="mode != 'production'">
@@ -89,5 +88,8 @@ export default {
 <style scoped>
 .logo {
   /* font-weight: bold */
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 150%;
+  padding-top: 10%;
 }
 </style>

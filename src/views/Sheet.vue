@@ -2,69 +2,33 @@
   <div class="sheet">
   <section class="section">
     <div class="container">
-      <div class="columns">
-        <div class="column is-2">
-           <aside class="menu">
-              <ul class="menu-list">
-                <li><a :class="menuClass('Overview')" v-on:click="selectmenu('Overview')">Overview</a></li>
-                <li><a :class="menuClass('API')" v-on:click="selectmenu('API')">API</a></li>
-                <li><a :class="menuClass('Schema')" v-on:click="selectmenu('Schema')">Schema</a></li>
-                <li><a :class="menuClass('Cache')" v-on:click="selectmenu('Cache')">Cache</a></li>
-                <li><a :class="menuClass('Database')" v-on:click="selectmenu('Database')">Database</a></li>
-                <li><a :class="menuClass('Source')" v-on:click="selectmenu('Source')">Source</a></li>
-              </ul>
-            </aside>
-        </div>
-        <div class="column">
-          <Overview v-show="isSelected('Overview')"></Overview>
-          <API v-show="isSelected('API')"  v-if="loaded"></API>
-          <Schema v-show="isSelected('Schema')" v-if="loaded"></Schema>
-          <SheetData v-show="isSelected('Source')" v-if="loaded"></SheetData>
-          <Cache v-show="isSelected('Cache')" v-if="loaded"></Cache>
-          <Database v-show="isSelected('Database')" v-if="loaded"></Database>
-        </div>
-      </div>
+      <SheetHeader></SheetHeader>
     </div>
   </section>
-  <section class="section dangerzone">
+  <section class="section main">
     <div class="container">
-      <hr/>
-      <div class="field is-grouped">
-        <p class="control">
-          <a class="button is-danger is-outlined" v-on:click="showDelete" v-if="sheet.id">Delete Supersheet</a>
-        </p>
+      <div class="tabs is-boxed">
+        <ul>
+          <li :class="menuClass('Overview')"><a v-on:click="selectmenu('Overview')">About</a></li>
+          <li :class="menuClass('Settings')"><a v-on:click="selectmenu('Settings')">Settings</a></li>
+        </ul>
       </div>
     </div>
-  </section>
-  <div :class="{'modal':true, 'is-active': showdelete }">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Delete Confirmation</p>
-        <button class="delete" aria-label="close" v-on:click="closeDelete"></button>
-      </header>
-      <section class="modal-card-body">
-        <!-- Content ... -->
-        <p>Are you sure you want to delete this Supersheet?</p>
-      </section>
-      <footer class="modal-card-foot">
-        <button :class="{'button':true, 'is-danger':true, 'is-loading': deleting}" v-on:click="deleteAction">Delete Supersheet</button>
-        <button class="button" v-on:click="closeDelete">Cancel</button>
-      </footer>
+    <br/>
+    <br/>
+    <div class="container">
+      <Overview v-show="isSelected('Overview')" v-if="loaded"></Overview>
+      <SheetSettings v-show="isSelected('Settings')" v-if="loaded"></SheetSettings>
     </div>
-  </div>
+  </section>
+ 
 </div>
 </template>
-
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
-
+import SheetHeader from '@/components/SheetHeader.vue'
+import SheetSettings from '@/components/SheetSettings.vue'
 import Overview from '@/components/Overview.vue'
-import Cache from '@/components/Cache.vue'
-import SheetData from '@/components/SheetData.vue'
-import Schema from '@/components/Schema.vue'
-import Database from '@/components/Database.vue'
-import API from '@/components/API.vue'
 
 const moment = require('moment')
 
@@ -72,12 +36,9 @@ export default {
   name: 'sheet',
   props: [ 'id' ],
   components: {
+    SheetHeader,
     Overview,
-    Cache,
-    SheetData,
-    Schema,
-    Database,
-    API
+    SheetSettings
   },
   data: () => {
     return {
@@ -190,5 +151,10 @@ export default {
 <style scoped>
 p.updated-at .help {
   padding: .4rem 0 .4rem 0
+}
+
+section.section.main {
+  margin-top: 0;
+  padding-top: 0;
 }
 </style>

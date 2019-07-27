@@ -1,36 +1,19 @@
 <template>
 <div class="overview">
-  <h1 class="title is-2">{{ sheet.title }}</h1>
-  <div class="field is-grouped" v-show="sheet.id">
-    <p class="control">
-      <a :class="{'button':true, 'is-info': true }" :href="sheet.url" target="_blank">
-        <span class="icon">
-          <i class="fas fa-external-link-alt"></i>
-        </span>
-        <span>Google Sheet</span>
-      </a>
-    </p>
-    <p class="control">
-      <a :class="{'button':true, 'is-loading':loading, 'is-success': true }" v-on:click="reload">Reload Data</a>
-    </p>
-    <p class="control updated-at">
-      <span class="help" v-show="!loading">Last updated {{ updated }} by {{ updated_by }}</span>
-      <span class="help" v-show="loading">Loading ...</span>
-    </p>
+  <h3 class="title is-5">API Endpoint</h3>
+  <div class="columns">
+    <div class="column">
+      <p class="help">{{ endpoint }}</p>
+    </div>
+    <div class="column is-4">
+    </div>
   </div>
   <br/>
-  <h3 class="title is-4">API</h3>
-  <article class="tile is-child notification is-warning">
-    <p><strong>Endpoint</strong></p>
-    <p>{{ endpoint }}</p>
-  </article>
-  <br/>
-  <br/>
-  <h3 class="title is-4" v-if="sheet.schema">Schema</h3>
-  <table class="table" v-if="sheet.schema">
+  <h3 class="title is-5" v-if="sheet.schema">Schema</h3>
+  <table class="table is-striped help" v-if="sheet.schema">
     <thead>
       <tr>
-        <th>Name</th>
+        <th>Field Name</th>
         <th>Data Type</th>
         <th>Sample Value</th>
         <th>Sheets</th>
@@ -45,15 +28,38 @@
       </tr>
     </tbody>
   </table>
-
-  <br/>
   <br/>  
-  <h3 class="title is-4">Source</h3>
-  <p>
-    This Supersheet is backed by the Google Spreadsheet: <em><a :href="sheet.url" target="_blank">{{ sheet.title }}</a></em>. 
-    It has a total of <strong>{{ sheet.nrows }} rows</strong> across  <strong>{{ sheet.sheets && sheet.sheets.length || -1 }} sheets</strong>. 
-    It is based in the <strong>{{ sheet.local }}</strong> locale and <strong>{{ sheet.tz }}</strong> timezone.
-  </p>
+  <h3 class="title is-5">Google Spreadsheet</h3>
+  <table class="table is-striped help">
+    <tbody>
+      <tr>
+        <th>Datasource</th>
+        <td>
+          <a :href="sheet.url" target="_blank">{{ sheet.title }}</a>
+        </td>
+      </tr>
+       <tr>
+        <th>Access Mode</th>
+        <td>{{ accessMode }}</td>
+      </tr>
+      <tr>
+        <th>Number of Sheets</th>
+        <td>{{ sheet.sheets && sheet.sheets.length || -1 }}</td>
+      </tr>
+      <tr>
+        <th>Number of Rows</th>
+        <td>{{ sheet.nrows }}</td>
+      </tr>
+      <tr>
+        <th>Timezone</th>
+        <td>{{ sheet.tz }}</td>
+      </tr>
+      <tr>
+        <th>Locale</th>
+        <td>{{ sheet.local }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 </template>
 
@@ -76,16 +82,24 @@ export default {
       'sheet'
     ]),
     updated: function () {
-      if (!this.sheet || !this.sheet.updated_at) return "?"
+      if (!this.sheet || !this.sheet.updated_at) return "..."
       let d = moment(this.sheet.updated_at)
-      return `${d.fromNow()} on ${d.format('MMMM Do YYYY [at] h:mm:ss A')}`
+      return `${d.fromNow()}`
     },
     updated_by: function () {
-      return this.sheet.updated_by_email || this.sheet.created_by_email || "Unknown"
+      return (this.sheet.updated_by_email || this.sheet.created_by_email || "Unknown@email.com").split('@')[0]
+    },
+    updated_date: function() {
+      if (!this.sheet || !this.sheet.updated_at) return "..."
+      let d = moment(this.sheet.updated_at)
+      return `${d.format('llll')}`
     },
     endpoint: function () {
       if (!this.sheet || !this.sheet.id) return "?"
       return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${this.sheet.id}`
+    },
+    accessMode: function() {
+      return this.sheet && this.sheet.config && this.sheet.config.access || 'public'
     }
   },
   methods: {
@@ -135,6 +149,14 @@ export default {
 <style scoped>
 p.updated-at .help {
   padding: .4rem 0 .4rem 0
+}
+
+.field.endpoint {
+  margin-top: 1.5rem;
+}
+
+.column.note {
+  background: #f6f6f6;
 }
 </style>
 
