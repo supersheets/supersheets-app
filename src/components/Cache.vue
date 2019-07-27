@@ -22,13 +22,7 @@
       </tr>
     </tbody>
   </table>
-  <div class="field is-grouped">
-    <p class="control">
-      <a :class="{'button':true, 'is-info': true, 'is-loading': loading }" v-on:click="cacheInfoAction(false)">
-        <span>Refresh</span>
-      </a>
-    </p>
-  </div>
+  
   <br/>
   <h3 class="title is-4" v-if="cache && cache.values">Items ({{ cache.n }})</h3>
   <div class="bd-snippet-code highlight-full bd-is-more" v-if="cache && cache.values">
@@ -78,7 +72,6 @@ export default {
       this.clearing = true
       this.cache = await this.deleteCache({ id: this.sheet.id })
       this.clearing = false
-      
     },
     async cacheInfoAction(values) {
       this.loading = true

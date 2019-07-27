@@ -1,16 +1,16 @@
 <template>
 <div class="overview">
-  <h3 class="title is-5">API Endpoint</h3>
+  <h3 class="title is-4">API Endpoint</h3>
   <div class="columns">
     <div class="column">
-      <p class="help">{{ endpoint }}</p>
+      <p>{{ endpoint }}</p>
     </div>
     <div class="column is-4">
     </div>
   </div>
   <br/>
-  <h3 class="title is-5" v-if="sheet.schema">Schema</h3>
-  <table class="table is-striped help" v-if="sheet.schema">
+  <h3 class="title is-4" v-if="sheet.schema">Schema</h3>
+  <table class="table is-striped" v-if="sheet.schema">
     <thead>
       <tr>
         <th>Field Name</th>
@@ -29,8 +29,8 @@
     </tbody>
   </table>
   <br/>  
-  <h3 class="title is-5">Google Spreadsheet</h3>
-  <table class="table is-striped help">
+  <h3 class="title is-4">Google Spreadsheet</h3>
+  <table class="table is-striped">
     <tbody>
       <tr>
         <th>Datasource</th>
@@ -60,6 +60,8 @@
       </tr>
     </tbody>
   </table>
+  <br/>
+
 </div>
 </template>
 

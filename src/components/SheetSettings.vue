@@ -62,7 +62,7 @@
     <!-- Left side -->
     <div class="level-left">
       <div class="level-item">
-        <a :class="{'button':true, 'is-info': true, 'is-loading': saving, 'is-large': true }" v-on:click="saveAction()">
+        <a :class="{'button':true, 'is-info': true, 'is-loading': saving }" v-on:click="saveAction()">
           <span class="icon">
             <i class="fas fa-save"></i>
           </span>
@@ -105,7 +105,6 @@ import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
   name: 'sheet-settings',
-  props: [ 'id' ],
   components: {
   },
   data: () => {
@@ -143,7 +142,7 @@ export default {
     async deleteAction() {
       this.deleting = true
       try {
-        await this.deleteSheet({ id: this.id })
+        await this.deleteSheet({ id: this.sheet.id })
         this.$router.push(`/`)
         this.addNotification({
           message: `Deleted successfully`,

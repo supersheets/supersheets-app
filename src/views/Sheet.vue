@@ -10,6 +10,7 @@
       <div class="tabs is-boxed">
         <ul>
           <li :class="menuClass('Overview')"><a v-on:click="selectmenu('Overview')">About</a></li>
+          <li :class="menuClass('Stats')"><a v-on:click="selectmenu('Stats')">Stats</a></li>
           <li :class="menuClass('Settings')"><a v-on:click="selectmenu('Settings')">Settings</a></li>
         </ul>
       </div>
@@ -18,6 +19,7 @@
     <br/>
     <div class="container">
       <Overview v-show="isSelected('Overview')" v-if="loaded"></Overview>
+      <SheetStats v-show="isSelected('Stats')" v-if="loaded"></SheetStats>
       <SheetSettings v-show="isSelected('Settings')" v-if="loaded"></SheetSettings>
     </div>
   </section>
@@ -27,6 +29,7 @@
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
 import SheetHeader from '@/components/SheetHeader.vue'
+import SheetStats from '@/components/SheetStats.vue'
 import SheetSettings from '@/components/SheetSettings.vue'
 import Overview from '@/components/Overview.vue'
 
@@ -38,6 +41,7 @@ export default {
   components: {
     SheetHeader,
     Overview,
+    SheetStats,
     SheetSettings
   },
   data: () => {
