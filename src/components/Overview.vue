@@ -137,6 +137,12 @@ export default {
         } else {
           return col.sample
         }
+      } else if (col.datatype == "GoogleDoc") {
+        if (typeof col.sample == "object") {
+          return `${JSON.stringify(col.sample).substring(0, 47)}...`
+        } else {
+          return `${col.sample.substring(0, 47)}...`
+        }
       } else {
         return col.sample
       }

@@ -47,6 +47,7 @@
                   <option>String</option>
                   <option>Number</option>
                   <option>Datetime</option>
+                  <option>GoogleDoc</option>
                 </select>
               </div>
             </div>
@@ -197,6 +198,12 @@ export default {
           return `${col.sample.substring(0, 47)}...`
         } else {
           return col.sample
+        }
+      } else if (col.datatype == "GoogleDoc") {
+        if (typeof col.sample == "object") {
+          return `${JSON.stringify(col.sample).substring(0, 47)}...`
+        } else {
+          return `${col.sample.substring(0, 47)}...`
         }
       } else {
         return col.sample

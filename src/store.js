@@ -31,7 +31,8 @@ export default new Vuex.Store({
       // headers: { 'X-Custom-Header': 'foobar'}
     }),
     notifications: [ ],
-    mode: process.env.VUE_APP_MODE
+    mode: process.env.VUE_APP_MODE,
+    loadstatus: null
   },
   getters: {
     isAuthenticated: (state, getters) => {
@@ -62,6 +63,38 @@ export default new Vuex.Store({
     },
     setSheet(state, sheet) {
       state.sheet = sheet
+    },
+    clearLoadStatus(state) {
+      state.loadstatus = null
+    },
+    updateLoadStatus(state, { status }) {
+      switch (status.status) {
+        case "INIT": 
+          state.loadstatus = {
+            status: status.status,
+            created_at: status.created_at,
+            loaded: status.num_sheets_loaded,
+            total: status.num_sheets_total
+          }
+          break
+        case "INPROGRESS":
+          state.loadstatus.status = status.status
+          state.loadstatus.loaded = status.num_sheets_loaded
+          break
+        case "SUCCESS":
+          state.loadstatus.status = status.status
+          state.loadstatus.loaded = status.num_sheets_loaded
+          state.loadstatus.completed_at = status.completed_at
+          break
+        case "ERROR": 
+          state.loadstatus.status = status.status
+          state.loadstatus.loaded = status.num_sheets_loaded
+          state.loadstatus.error = status.error
+          state.completed_at = status.completed_at
+          break
+        default:
+          throw new Error("Unknown load status")
+      }
     },
     // NOTIFICATIONS
     addNotification(state, { message, level }) {
@@ -131,6 +164,18 @@ export default new Vuex.Store({
       commit('setSheet', sheet)
       return state.sheet
     },
+    async startLoad({dispatch, commit, state, getters}, { id }) {
+      let params = { idptoken: getters.idptoken }
+      await state.axios.post(`${id}`, { params })
+      let status = (await state.axios.post(`${id}/load`, { params })).data
+      commit('updateLoadStatus', { status })
+      return status
+    },
+    async checkLoadStatus({dispatch, commit, state, getters}, { id, uuid }) {
+      let status = (await state.axios.get(`${id}/load/${uuid}`)).data
+      commit('updateLoadStatus', { status })
+      return status
+    },
     async reloadSheet({dispatch, commit, state, getters}, { id }) {
       let params = { idptoken: getters.idptoken }
       await state.axios.get(`${id}/meta`, { params })
@@ -146,7 +191,7 @@ export default new Vuex.Store({
       return { delete: res, deleteCache }
     },
     async saveSheet({dispatch, commit, state, getters}, { id, metadata }) {
-      let sheet = (await state.axios.patch(`${id}/meta`, metadata)).data
+      let sheet = (await state.axios.patch(`${id}`, metadata)).data
       commit('setSheet', sheet)
       return sheet
     },

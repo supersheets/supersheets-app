@@ -70,25 +70,7 @@
   <h3 class="title is-4">Settings</h3>
   <div class="columns">
     <div class="column">
-      <div class="form">
-        <div class="field">
-          <label class="label">Access Mode</label>
-          <div class="control">
-            <div class="select">
-              <select v-model="access">
-                <option value="public">Public Access</option>
-                <option value="private">Private Access</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <br/>
-        <div class="field is-grouped">
-          <p class="control">
-            <a :class="{'button':true, 'is-success': true, 'is-loading': saving }" v-on:click="saveAction()">Save Settings</a>
-          </p>
-        </div>
-      </div>
+      
     </div>
     <div class="column"></div>
   </div>

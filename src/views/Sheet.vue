@@ -47,8 +47,6 @@ export default {
   data: () => {
     return {
       loading: false,
-      deleting: false,
-      showdelete: false,
       selected: "Overview",
     }
   },
@@ -77,53 +75,7 @@ export default {
     ]),
     ...mapActions([
       'getSheet',
-      'reloadSheet',
-      'deleteSheet'
     ]),
-    async reload() {
-      this.loading = true
-      try {
-        await this.reloadSheet({ id: this.id })
-        this.addNotification({
-          message: `Reloaded successfully`,
-          level: "success"
-        })
-      } catch (err) {
-        console.log(err.response)
-        this.addNotification({
-          message: `${err.response.status} ${err.response.data.errorMessage}`,
-          level: "danger"
-        })
-      } finally {
-        this.loading = false
-      }
-    },
-    async deleteAction() {
-      this.deleting = true
-      try {
-        await this.deleteSheet({ id: this.id })
-        this.$router.push(`/`)
-        this.addNotification({
-          message: `Deleted successfully`,
-          level: "success"
-        })
-      } catch (err) {
-        console.log(err.response)
-        this.addNotification({
-          message: `${err.response.status} ${err.response.data.errorMessage}`,
-          level: "danger"
-        })
-      } finally {
-        this.deleting = false
-        this.showdelete = false
-      }
-    },
-    showDelete() {
-      this.showdelete = true
-    },
-    closeDelete() {
-      this.showdelete = false
-    },
     async selectmenu(name) {
       this.selected = name
     },

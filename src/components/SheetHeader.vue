@@ -10,9 +10,17 @@
         <span>Reload Sheet</span>
       </a>
     </p>
+    <p class="control">
+      <a :class="{'button':true, 'is-loading':loading, 'is-info': true }" v-on:click="load">
+        <span class="icon">
+          <i class="fas fa-sync-alt"></i>
+        </span>
+        <span>Start Load</span>
+      </a>
+    </p>
     <p class="control updated-at">
       <span class="help" v-show="!loading">Last updated {{ updated }} by {{ updated_by }} ({{ updated_date }})</span>
-      <span class="help" v-show="loading">Loading ...</span>
+      <span class="help" v-show="loading">{{ progress }}</span>
     </p>
   </div>
 </div>
@@ -34,8 +42,13 @@ export default {
   computed: {
     ...mapState([
       'user',
-      'sheet'
+      'sheet',
+      'loadstatus'
     ]),
+    progress: function () {
+      if (!this.loadstatus) return "Loading ..."
+      return `${this.loadstatus.loaded}/${this.loadstatus.total}`
+    },
     updated: function () {
       if (!this.sheet || !this.sheet.updated_at) return "..."
       let d = moment(this.sheet.updated_at)
@@ -56,11 +69,14 @@ export default {
   },
   methods: {
     ...mapMutations([
+      'clearLoadStatus',
       'addNotification',
       'removeNotification'
     ]),
     ...mapActions([
       'reloadSheet',
+      'startLoad',
+      'checkLoadStatus'
     ]),
     async reload() {
       this.loading = true
@@ -78,6 +94,49 @@ export default {
         })
       } finally {
         this.loading = false
+      }
+    },
+    async load() {
+      this.clearLoadStatus()
+      this.loading = true
+      try {
+        let status = await this.startLoad({ id: this.sheet.id })
+        let interval = setInterval(async () => {
+          try {
+            console.log("interval")
+            let update = await this.checkLoadStatus({ id: this.sheet.id, uuid: status.uuid })
+            if (!this.loadstatus) return
+            if (this.loadstatus.completed_at) {
+              console.log("clear interval")
+              clearInterval(interval)
+              this.loading = false
+            }
+            if (this.loadstatus.status == "SUCCESS") {
+              this.addNotification({
+                message: `Loaded successfully`,
+                level: "success"
+              })
+            } else if (this.loadstatus.status == "FAILURE") {
+              this.addNotification({
+                message: `${this.loadstatus.error}`,
+                level: "danger"
+              })
+            }
+          } catch (err) {
+            this.addNotification({
+              message: `${err.message}`,
+              level: "danger"
+            })
+          }
+        }, 5 * 1000)
+      } catch (err) {
+        console.log(err.response)
+        this.addNotification({
+          message: `${err.response.status} ${err.response.data.errorMessage}`,
+          level: "danger"
+        })
+      } finally {
+        // this.loading = false
       }
     }
   }
