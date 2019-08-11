@@ -1,28 +1,39 @@
 <template>
 <div class="sheet-header">
   <h1 class="title is-2">{{ sheet.title }}</h1>
-  <div class="field is-grouped" v-show="sheet.id">
-    <p class="control">
-      <a :class="{'button':true, 'is-loading':loading, 'is-info': true }" v-on:click="reload">
-        <span class="icon">
-          <i class="fas fa-sync-alt"></i>
+  <nav class="level">
+  <!-- Left side -->
+  <div class="level-left">
+    <div class="level-item">
+      <p class="control">
+        <a :class="{'button':true, 'is-loading':loading, 'is-info': true }" v-on:click="load">
+          <span class="icon">
+            <i class="fas fa-sync-alt"></i>
+          </span>
+          <span>Reload Sheet</span>
+        </a>
+      </p>
+    </div>
+    <div class="level-item">
+      <p class="control updated-at">
+        <span class="help" v-show="!loading">Last updated {{ updated }} by {{ updated_by }} ({{ updated_date }})</span>
+        <span class="help" v-show="loading">
+          {{ message }}
         </span>
-        <span>Reload Sheet</span>
-      </a>
-    </p>
-    <p class="control">
-      <a :class="{'button':true, 'is-loading':loading, 'is-info': true }" v-on:click="load">
-        <span class="icon">
-          <i class="fas fa-sync-alt"></i>
-        </span>
-        <span>Start Load</span>
-      </a>
-    </p>
-    <p class="control updated-at">
-      <span class="help" v-show="!loading">Last updated {{ updated }} by {{ updated_by }} ({{ updated_date }})</span>
-      <span class="help" v-show="loading">{{ progress }}</span>
-    </p>
+      </p>
+    </div>
   </div>
+
+  <!-- Right side -->
+  <div class="level-right">
+    <div class="level-item">
+      <p class="control progress-bar" v-show="loading">
+        <progress class="progress is-info" :max="progress.max" style="width: 15rem;" v-if="progress.value == 0"></progress>
+        <progress class="progress is-info" :value="progress.value" :max="progress.max" style="width: 15rem;" v-if="progress.value > 0"></progress>
+      </p>
+    </div>
+  </div>
+</nav>
 </div>
 </template>
 
@@ -45,9 +56,12 @@ export default {
       'sheet',
       'loadstatus'
     ]),
+    message: function () {
+      return `${this.loadstatus.message}`
+    },
     progress: function () {
-      if (!this.loadstatus) return "Loading ..."
-      return `${this.loadstatus.loaded}/${this.loadstatus.total}`
+      if (this.loadstatus.num_sheets_total == -1) return { value: 0, max: -1 }
+      return { value: this.loadstatus.num_sheets_loaded, max: this.loadstatus.num_sheets_total }
     },
     updated: function () {
       if (!this.sheet || !this.sheet.updated_at) return "..."
@@ -106,19 +120,18 @@ export default {
           try {
             console.log("interval")
             let update = await this.checkLoadStatus({ id: this.sheet.id, uuid: status.uuid })
-            if (!this.loadstatus) return
-            if (this.loadstatus.completed_at) {
-              console.log("clear interval")
+            if (update.completed_at) {
               clearInterval(interval)
-              this.loading = false
             }
-            if (this.loadstatus.status == "SUCCESS") {
+            if (update.status == "SUCCESS") {
               await this.endLoad({ id: this.sheet.id })
+              this.loading = false
               this.addNotification({
                 message: `Loaded successfully`,
                 level: "success"
               })
-            } else if (this.loadstatus.status == "FAILURE") {
+            } else if (update.status == "FAILURE") {
+              this.loading = false
               this.addNotification({
                 message: `${this.loadstatus.error}`,
                 level: "danger"
@@ -132,11 +145,19 @@ export default {
           }
         }, 5 * 1000)
       } catch (err) {
-        console.log(err.response)
-        this.addNotification({
-          message: `${err.response.status} ${err.response.data.errorMessage}`,
-          level: "danger"
-        })
+        if (err.response) {
+          console.log(err.response)
+          this.addNotification({
+            message: `${err.response.status} ${err.response.data.errorMessage}`,
+            level: "danger"
+          })
+        } else {
+          console.log(err)
+          this.addNotification({
+            message: `${err.message}`,
+            level: "danger"
+          })
+        }
       } finally {
         // this.loading = false
       }
@@ -148,6 +169,9 @@ export default {
 <style scoped>
 p.updated-at .help {
   padding: .4rem 0 .4rem 0
+}
+p.progress-bar progress {
+  margin-top: .7rem
 }
 
 .field.endpoint {

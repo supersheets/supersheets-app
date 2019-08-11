@@ -33,7 +33,7 @@ export default new Vuex.Store({
     }),
     notifications: [ ],
     mode: process.env.VUE_APP_MODE,
-    loadstatus: null
+    loadstatus: { num_sheets_loaded: 0, num_sheets_total: -1, message: "Loading ...", sheets_loaded: [ ] }
   },
   getters: {
     isAuthenticated: (state, getters) => {
@@ -69,36 +69,14 @@ export default new Vuex.Store({
       state.cache = cache
     },
     clearLoadStatus(state) {
-      state.loadstatus = null
+      state.loadstatus = { num_sheets_loaded: 0, num_sheets_total: -1, message: "Loading ...", sheets_loaded: [ ] }
     },
-    updateLoadStatus(state, { status }) {
-      switch (status.status) {
-        case "INIT": 
-          state.loadstatus = {
-            status: status.status,
-            created_at: status.created_at,
-            loaded: status.num_sheets_loaded,
-            total: status.num_sheets_total
-          }
-          break
-        case "INPROGRESS":
-          state.loadstatus.status = status.status
-          state.loadstatus.loaded = status.num_sheets_loaded
-          break
-        case "SUCCESS":
-          state.loadstatus.status = status.status
-          state.loadstatus.loaded = status.num_sheets_loaded
-          state.loadstatus.completed_at = status.completed_at
-          break
-        case "ERROR": 
-          state.loadstatus.status = status.status
-          state.loadstatus.loaded = status.num_sheets_loaded
-          state.loadstatus.error = status.error
-          state.completed_at = status.completed_at
-          break
-        default:
-          throw new Error("Unknown load status")
+    updateLoadStatus(state, status) {
+      let old_sheets_loaded = state.loadstatus.sheets_loaded
+      if (status.sheets_loaded && (status.sheets_loaded.length > state.loadstatus.sheets_loaded.length)) {
+        status.message = `Loaded sheets: ${status.sheets_loaded.slice(state.loadstatus.sheets_loaded.length).join(', ')}`
       }
+      Object.assign(state.loadstatus, status)
     },
     // NOTIFICATIONS
     addNotification(state, { message, level }) {
@@ -172,14 +150,16 @@ export default new Vuex.Store({
     },
     async startLoad({dispatch, commit, state, getters}, { id }) {
       let params = { idptoken: getters.idptoken }
-      await state.axios.post(`${id}`, { params })
+      commit('updateLoadStatus', { message: "Loading ..." })
+      let metadata = (await state.axios.post(`${id}`, { params })).data
+      commit('updateLoadStatus', { message: "Loaded metadata" })
       let status = (await state.axios.post(`${id}/load`, { params })).data
-      commit('updateLoadStatus', { status })
+      commit('updateLoadStatus', { message: `Loading ${metadata.sheets.length} sheets ...`, num_sheets_total: metadata.sheets.length })
       return status
     },
     async checkLoadStatus({dispatch, commit, state, getters}, { id, uuid }) {
       let status = (await state.axios.get(`${id}/load/${uuid}`)).data
-      commit('updateLoadStatus', { status })
+      commit('updateLoadStatus', { num_sheets_loaded: status.num_sheets_loaded, sheets_loaded: status.sheets_loaded })
       return status
     },
     async endLoad({dispatch, commit, state, getters}, { id }) {
