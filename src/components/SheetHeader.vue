@@ -76,7 +76,8 @@ export default {
     ...mapActions([
       'reloadSheet',
       'startLoad',
-      'checkLoadStatus'
+      'checkLoadStatus',
+      'endLoad'
     ]),
     async reload() {
       this.loading = true
@@ -112,6 +113,7 @@ export default {
               this.loading = false
             }
             if (this.loadstatus.status == "SUCCESS") {
+              await this.endLoad({ id: this.sheet.id })
               this.addNotification({
                 message: `Loaded successfully`,
                 level: "success"

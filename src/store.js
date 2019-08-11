@@ -25,6 +25,7 @@ export default new Vuex.Store({
     user: null,
     account: null,
     sheet: { title: "Loading ..." },
+    cache: null,
     axios: axios.create({
       baseURL: process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT,
       // timeout: 1000,
@@ -63,6 +64,9 @@ export default new Vuex.Store({
     },
     setSheet(state, sheet) {
       state.sheet = sheet
+    },
+    setCache(state, cache) {
+      state.cache = cache
     },
     clearLoadStatus(state) {
       state.loadstatus = null
@@ -162,6 +166,8 @@ export default new Vuex.Store({
         return
       }
       commit('setSheet', sheet)
+      let cache = await dispatch('getCacheInfo', { id })
+      commit('setCache', cache)
       return state.sheet
     },
     async startLoad({dispatch, commit, state, getters}, { id }) {
@@ -175,6 +181,10 @@ export default new Vuex.Store({
       let status = (await state.axios.get(`${id}/load/${uuid}`)).data
       commit('updateLoadStatus', { status })
       return status
+    },
+    async endLoad({dispatch, commit, state, getters}, { id }) {
+      await dispatch('deleteCache', { id })
+      await dispatch('getSheet', { id })
     },
     async reloadSheet({dispatch, commit, state, getters}, { id }) {
       let params = { idptoken: getters.idptoken }
@@ -199,11 +209,15 @@ export default new Vuex.Store({
     async deleteCache({dispatch, commit, state, getters}, { id }) {
       try {
         let del = (await state.axios.delete(`${id}/find/cache`)).data
-        return { n: 0, ttl: -1, key: null }
+        let cache = { n: 0, ttl: -1, key: null }
+        commit('setCache', cache)
+        return cache
       } catch (err) {
         if (err.response.status == 404) {
           // this just means the cache is not initialized so we just don'
-          return { n: 0, ttl: -1, key: null }
+          let cache = { n: 0, ttl: -1, key: null }
+          commit('setCache', cache)
+          return cache
         } else {
           throw err
         }
@@ -216,6 +230,7 @@ export default new Vuex.Store({
       }
       try {
         let info = (await state.axios.get(url)).data
+        commit('setCache', info)
         return info
       } catch (err) {
         if (err.response.status == 404) {

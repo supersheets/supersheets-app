@@ -73,14 +73,14 @@ export default {
   data: () => {
     return {
       loading: false,
-      clearing: false,
-      cache: null
+      clearing: false
     }
   },
   computed: {
     ...mapState([
       'user',
-      'sheet'
+      'sheet',
+      'cache'
     ]),
     expires() {
       if (!this.cache) return '...'
@@ -101,18 +101,18 @@ export default {
     ]),
     async clearCacheAction() {
       this.clearing = true
-      this.cache = await this.deleteCache({ id: this.sheet.id })
+      await this.deleteCache({ id: this.sheet.id })
       this.clearing = false
       
     },
     async cacheInfoAction(values) {
       this.loading = true
-      this.cache = await this.getCacheInfo({ id: this.sheet.id, values})
+      await this.getCacheInfo({ id: this.sheet.id, values})
       this.loading = false
     },
   },
   async created() {
-    this.cache = await this.getCacheInfo({ id: this.sheet.id })
+    // this.cache = await this.getCacheInfo({ id: this.sheet.id })
   }
 }
 </script>
