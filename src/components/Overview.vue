@@ -1,19 +1,28 @@
 <template>
 <div class="overview">
-  <h3 class="title is-4">API Endpoint</h3>
+  <h3 class="title is-4">GraphQL Endpoint</h3>
   <div class="columns">
     <div class="column">
       <p>{{ endpoint }}</p>
+      <br/>
+      <p>
+        <a :class="{'button':true, 'is-loading':loading, 'is-warning': true }" target="_blank" :href="playgroundurl">
+          <span>GraphQL Playground</span>
+          <span class="icon">
+            <i class="fas fa-play"></i>
+          </span>
+        </a>
+      </p>
     </div>
     <div class="column is-4">
     </div>
   </div>
   <br/>
-  <h3 class="title is-4" v-if="sheet.schema">Schema</h3>
+  <h3 class="title is-4" v-if="sheet.schema">Fields</h3>
   <table class="table is-striped" v-if="sheet.schema">
     <thead>
       <tr>
-        <th>Field Name</th>
+        <th>Name</th>
         <th>Data Type</th>
         <th>Sample Value</th>
         <th>Sheets</th>
@@ -98,7 +107,11 @@ export default {
     },
     endpoint: function () {
       if (!this.sheet || !this.sheet.id) return "?"
-      return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${this.sheet.id}`
+      return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${this.sheet.id}/graphql`
+    },
+    playgroundurl: function () {
+      if (!this.sheet || !this.sheet.id) return "?"
+      return `${this.endpoint}/playground`
     },
     accessMode: function() {
       return this.sheet && this.sheet.config && this.sheet.config.access || 'public'

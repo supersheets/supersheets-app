@@ -38,16 +38,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="col in config.columns" v-bind:key="col.name">
-          <th>{{ col.name }}</th>
+        <tr v-for="col in config.columns" v-bind:key="col.name" :class="{ embedded: col.embedded }">
+          <th v-if="!col.embedded">{{ col.name }}</th>
+          <th v-if="col.embedded">&rdsh; {{ col.name }}</th>
           <td>
             <div class="control">
               <div class="select is-small">
                 <select v-model="col.datatype">
                   <option>String</option>
-                  <option>Number</option>
+                  <option>Int</option>
+                  <option>Float</option>
+                  <option>Boolean</option>
+                  <option>Date</option>
                   <option>Datetime</option>
+                  <option>StringList</option>
                   <option>GoogleDoc</option>
+                  <option>JSON</option>
                 </select>
               </div>
             </div>
@@ -125,6 +131,11 @@ export default {
       return this.sheet && this.sheet.config && this.sheet.config.access || 'public'
     }
   },
+  watch: {
+    sheet: function (newSheet, oldSheet) {
+      this.config = this.initmetadata()
+    }
+  },
   methods: {
     ...mapMutations([
       'addNotification',
@@ -172,7 +183,11 @@ export default {
       current.mode = config.mode
       let datatypes = { }
       for (let col of config.columns) {
-        datatypes[col.name] = col.datatype
+        if (col.embedded) {
+          datatypes[`${col.embedded}.${col.name}`] = col.datatype
+        } else {
+          datatypes[col.name] = col.datatype
+        }
       }
       current.datatypes = datatypes
       return { config: current }
@@ -190,6 +205,7 @@ export default {
           col.datatype = datatypes[col.name]
         }
       }
+      columns = insertGoogleDocColumns(columns, this.sheet.schema.docs, datatypes)
       return { access, mode, columns }
     },
     formatSample(col) {
@@ -214,6 +230,29 @@ export default {
     this.config = this.initmetadata()
   }
 }
+
+function insertGoogleDocColumns(columns, docs, datatypes) {
+  if (!docs) return
+  let newcolumns = [ ]
+  for (let i=0; i<columns.length; i++) {
+    let column = columns[i]
+    newcolumns.push(column)
+    if (column.datatype != "GoogleDoc" || !docs[column.name]) continue
+    let doccolumns = docs[column.name].columns
+    for (let doccolumn of doccolumns) {
+      let copy = JSON.parse(JSON.stringify(doccolumn))
+      copy.name = `${copy.name}`
+      copy.embedded = column.name
+      if (datatypes[`${column.name}.${copy.name}`]) {
+        copy.datatype = datatypes[`${column.name}.${copy.name}`]
+      }
+      newcolumns.push(copy)
+    }
+  }
+  console.log("NEWCOLUMNS", newcolumns)
+  return newcolumns
+}
+
 </script>
 
 <style scoped>
@@ -224,5 +263,9 @@ p.updated-at .help {
 section.section.main {
   margin-top: 0;
   padding-top: 0;
+}
+
+tr.embedded {
+  background: #fafafa;
 }
 </style>

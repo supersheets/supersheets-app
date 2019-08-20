@@ -42,6 +42,13 @@ export default new Vuex.Store({
     idptoken: (state, getters) => {
       if (!state.account) return null
       return getGoogleIDPTokenFromAccount(state.account)
+    },
+    supersheetsbaseurl: (state, getter) => {
+      return process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT
+    },
+    graphqlendpoint: (state, getter) => {
+      if (!state.sheet.id) return null
+      return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${state.sheet.id}/graphql`
     }
   },
   mutations: {

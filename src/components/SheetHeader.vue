@@ -6,7 +6,27 @@
   <div class="level-left">
     <div class="level-item">
       <p class="control">
-        <a :class="{'button':true, 'is-loading':loading, 'is-info': true }" v-on:click="load">
+        <a :class="{'button':true, 'is-info': true }" target="_blank" :href="playgroundurl">
+          <span>GraphQL Playground</span>
+          <span class="icon">
+            <i class="fas fa-play"></i>
+          </span>
+        </a>
+      </p>
+    </div>
+    <div class="level-item">
+      <p class="control">
+        <a :class="{'button':true, 'is-info': true }" target="_blank" :href="this.sheet.url">
+          <span>Google Sheet</span>
+          <span class="icon">
+            <i class="fas fa-external-link-alt"></i>
+          </span>
+        </a>
+      </p>
+    </div>
+    <div class="level-item">
+      <p class="control">
+        <a :class="{'button':true, 'is-loading':loading, 'is-success': true }" v-on:click="load">
           <span class="icon">
             <i class="fas fa-sync-alt"></i>
           </span>
@@ -33,7 +53,7 @@
       </p>
     </div>
   </div>
-</nav>
+  </nav>
 </div>
 </template>
 
@@ -78,8 +98,11 @@ export default {
     },
     endpoint: function () {
       if (!this.sheet || !this.sheet.id) return "?"
-      return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${this.sheet.id}`
+      return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${this.sheet.id}/graphql`
     },
+    playgroundurl: function() {
+      return `${this.endpoint}/graphql/playground`
+    }
   },
   methods: {
     ...mapMutations([
