@@ -1,23 +1,5 @@
 <template>
 <div class="overview">
-  <h3 class="title is-4">GraphQL Endpoint</h3>
-  <div class="columns">
-    <div class="column">
-      <p>{{ endpoint }}</p>
-      <br/>
-      <p>
-        <a :class="{'button':true, 'is-loading':loading, 'is-warning': true }" target="_blank" :href="playgroundurl">
-          <span>GraphQL Playground</span>
-          <span class="icon">
-            <i class="fas fa-play"></i>
-          </span>
-        </a>
-      </p>
-    </div>
-    <div class="column is-4">
-    </div>
-  </div>
-  <br/>
   <h3 class="title is-4" v-if="sheet.schema">Fields</h3>
   <table class="table is-striped" v-if="sheet.schema">
     <thead>
@@ -37,40 +19,6 @@
       </tr>
     </tbody>
   </table>
-  <br/>  
-  <h3 class="title is-4">Google Spreadsheet</h3>
-  <table class="table is-striped">
-    <tbody>
-      <tr>
-        <th>Datasource</th>
-        <td>
-          <a :href="sheet.url" target="_blank">{{ sheet.title }}</a>
-        </td>
-      </tr>
-       <tr>
-        <th>Access Mode</th>
-        <td>{{ accessMode }}</td>
-      </tr>
-      <tr>
-        <th>Number of Sheets</th>
-        <td>{{ sheet.sheets && sheet.sheets.length || -1 }}</td>
-      </tr>
-      <tr>
-        <th>Number of Rows</th>
-        <td>{{ sheet.nrows }}</td>
-      </tr>
-      <tr>
-        <th>Timezone</th>
-        <td>{{ sheet.tz }}</td>
-      </tr>
-      <tr>
-        <th>Locale</th>
-        <td>{{ sheet.local }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <br/>
-
 </div>
 </template>
 

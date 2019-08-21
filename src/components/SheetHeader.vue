@@ -6,32 +6,18 @@
   <div class="level-left">
     <div class="level-item">
       <p class="control">
-        <a :class="{'button':true, 'is-info': true }" target="_blank" :href="playgroundurl">
-          <span>GraphQL Playground</span>
-          <span class="icon">
-            <i class="fas fa-play"></i>
-          </span>
-        </a>
-      </p>
-    </div>
-    <div class="level-item">
-      <p class="control">
-        <a :class="{'button':true, 'is-info': true }" target="_blank" :href="this.sheet.url">
-          <span>Google Sheet</span>
-          <span class="icon">
-            <i class="fas fa-external-link-alt"></i>
-          </span>
-        </a>
-      </p>
-    </div>
-    <div class="level-item">
-      <p class="control">
-        <a :class="{'button':true, 'is-loading':loading, 'is-success': true }" v-on:click="load">
+        <a :class="{'button':true, 'is-loading':loading, 'is-success': true, 'is-small': true }" v-on:click="load">
           <span class="icon">
             <i class="fas fa-sync-alt"></i>
           </span>
           <span>Reload Sheet</span>
         </a>
+      </p>
+    </div>
+    <div class="level-item">
+      <p class="control progress-bar" v-show="loading">
+        <progress class="progress is-info" :max="progress.max" style="width: 15rem;" v-if="progress.value == 0"></progress>
+        <progress class="progress is-info" :value="progress.value" :max="progress.max" style="width: 15rem;" v-if="progress.value > 0"></progress>
       </p>
     </div>
     <div class="level-item">
@@ -47,13 +33,53 @@
   <!-- Right side -->
   <div class="level-right">
     <div class="level-item">
-      <p class="control progress-bar" v-show="loading">
-        <progress class="progress is-info" :max="progress.max" style="width: 15rem;" v-if="progress.value == 0"></progress>
-        <progress class="progress is-info" :value="progress.value" :max="progress.max" style="width: 15rem;" v-if="progress.value > 0"></progress>
+      <p class="control">
+        <a :class="{'button':true, 'is-info': true, 'is-outlined': true, 'is-small': true }" target="_blank" :href="playgroundurl">
+          <span>GraphQL Playground</span>
+          <span class="icon">
+            <i class="fas fa-play"></i>
+          </span>
+        </a>
+      </p>
+    </div>
+    <div class="level-item">
+      <p class="control">
+        <a :class="{'button':true, 'is-info': true, 'is-outlined': true, 'is-small': true }" target="_blank" :href="this.sheet.url">
+          <span>Google Sheet</span>
+          <span class="icon">
+            <i class="fas fa-external-link-alt"></i>
+          </span>
+        </a>
       </p>
     </div>
   </div>
   </nav>
+  <div class="field is-grouped is-grouped-multiline">
+    <div class="control">
+      <div class="tags has-addons">
+        <span class="tag">Fields:</span>
+        <span class="tag">{{ numfields }}</span>
+      </div>
+    </div>
+    <div class="control">
+      <div class="tags has-addons">
+        <span class="tag">Records:</span>
+        <span class="tag">{{ numrows }}</span>
+      </div>
+    </div>
+    <div class="control">
+      <div class="tags has-addons">
+        <span class="tag">Timezone:</span>
+        <span class="tag">{{ sheet.tz }} ({{ sheet.local }})</span>
+      </div>
+    </div>
+    <div class="control">
+      <div class="tags has-addons">
+        <span class="tag">URL:</span>
+        <span class="tag">{{ endpoint }}</span>
+      </div>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -102,6 +128,14 @@ export default {
     },
     playgroundurl: function() {
       return `${this.endpoint}/graphql/playground`
+    },
+    numfields: function() {
+      if (!this.sheet || !this.sheet.id) return -1
+      return this.sheet.ncols
+    },
+    numrows: function() {
+      if (!this.sheet || !this.sheet.id) return -1
+      return this.sheet.nrows
     }
   },
   methods: {
@@ -194,7 +228,7 @@ p.updated-at .help {
   padding: .4rem 0 .4rem 0
 }
 p.progress-bar progress {
-  margin-top: .7rem
+  margin-top: .25rem
 }
 
 .field.endpoint {

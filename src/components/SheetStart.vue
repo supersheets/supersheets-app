@@ -115,7 +115,49 @@
       </p>
       <p>
         <prism language="graphql" class="content">{{ code.simple.trim() }}</prism>
-        <a :href="getPlaygroundUrl({ name: 'find', query: code.simple.trim() })" class="button" target="_blank">Try in GraphQL Playground</a>
+        <div class="run-playground">
+          <a :href="getPlaygroundUrl({ name: 'find', query: code.simple.trim() })" class="button is-small is-danger" target="_blank">
+            <span>Run in GraphQL Playground</span>
+            <span class="icon">
+              <i class="fas fa-play"></i>
+            </span>
+          </a>
+        </div>
+      </p>
+      <br/>
+      <p>
+       <strong>query { … }:</strong> this tells GraphQL that we want to query or fetch data. What we put inside the braces will be the content of our query.
+      </p>
+      <br/>
+      <p>
+       <strong>find (...) { … }:</strong> this is the name of the query we want to execute. Inside the paretheses (...) we will define the criteria of the data we are looking for. Find will return all of the data that matches the criteria. Inside the { … } is which specific fields of the matching data GraphQL should return back.
+      </p>
+      <br/>
+      <p>
+       <strong>filter: { … }:</strong> this definitely the most complicated part of the query. Filter means that GraphQL should only return data that meets these criteria within the { … }
+      </p>
+      <br/>
+      <p>
+        <strong>${first filed name}: { eq: ${first field sample value} }:</strong> this definitely the most complicated part of the query. Filter means that GraphQL should only return data that meets these criteria within the { … }
+      </p>
+      <br/>
+      <p>
+        <strong>${first filed name}: { eq: ${first field sample value} }:</strong>
+      </p>
+
+: 
+
+
+
+We are setting up a criteria for the ${first field name} field. Here we are using the eq operator meaning that we are looking for all records whose ${} exactly equals the value of  ${first field sample value}. See the general documentation for all the different filter operations supported.
+
+{
+  ${first field}
+  ${second field}
+}
+
+Within the { } of our find query are selectors. In this case we are asking GraphQL to only return the ${} and ${} fields in the matching data.  You’ll notice that we can ask for different selectors than filter criteria. 
+
       </p>
       <br/>
       <br/>
@@ -192,6 +234,11 @@ query {
 </script>
 
 <style scoped>
+.run-playground {
+  padding: .5rem 0 1rem .5rem;
+  background: #f5f2f0;
+}
+
 /* iframe {
   max-width: 100% !important;
   width: auto !important;

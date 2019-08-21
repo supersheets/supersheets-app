@@ -46,4 +46,7 @@ nav.breadcrumb {
   background: inherit;
   margin: inherit;
 }
+pre[class*="language-"].content {
+  margin: 0
+}
 </style>
