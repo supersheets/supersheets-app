@@ -33,7 +33,7 @@
                   </div>
                   <div class="field is-grouped">
                     <div class="control">
-                      <button :class="{'button':true, 'is-success':true, 'is-loading': loading}" :disabled="!docid" v-on:click="reload">Create</button>
+                      <button :class="{'button':true, 'is-success':true, 'is-loading': loading}" :disabled="!docid" v-on:click="load">Create</button>
                     </div>
                     <div class="control">
                       <button class="button is-white" v-on:click="url = ''">Clear</button>
@@ -76,29 +76,84 @@ export default {
   },
   methods: {
     ...mapMutations([
+      'clearLoadStatus',
       'addNotification',
       'removeNotification'
     ]),
     ...mapActions([
       'getSheets',
-      'reloadSheet'
+      'startLoad',
+      'checkLoadStatus',
+      'endLoad'
     ]),
-    async reload() {
-      console.log("reload", this.docid)
+    async load() {
+      this.clearLoadStatus()
       this.loading = true
       try {
-        await this.reloadSheet({ id: this.docid })
-        this.$router.push(`/sheets/${this.docid}`)
+        let status = await this.startLoad({ id: this.docid })
+        let interval = setInterval(async () => {
+          try {
+            console.log("interval")
+            let update = await this.checkLoadStatus({ id: this.docid, uuid: status.uuid })
+            if (update.completed_at) {
+              clearInterval(interval)
+            }
+            if (update.status == "SUCCESS") {
+              await this.endLoad({ id: this.docid })
+              this.loading = false
+              this.addNotification({
+                message: `Loaded successfully`,
+                level: "success"
+              })
+              this.$router.push(`/sheets/${this.docid}`)
+            } else if (update.status == "FAILURE") {
+              this.loading = false
+              this.addNotification({
+                message: `${this.loadstatus.error}`,
+                level: "danger"
+              })
+            }
+          } catch (err) {
+            this.addNotification({
+              message: `${err.message}`,
+              level: "danger"
+            })
+          }
+        }, 5 * 1000)
       } catch (err) {
-        console.log(err.response)
-        this.addNotification({
-          message: `${err.response.status} ${err.response.data.errorMessage}`,
-          level: "danger"
-        })
+        if (err.response) {
+          console.log(err.response)
+          this.addNotification({
+            message: `${err.response.status} ${err.response.data.errorMessage}`,
+            level: "danger"
+          })
+        } else {
+          console.log(err)
+          this.addNotification({
+            message: `${err.message}`,
+            level: "danger"
+          })
+        }
       } finally {
-        this.loading = false
+        // this.loading = false
       }
     }
+    // async reload() {
+    //   console.log("reload", this.docid)
+    //   this.loading = true
+    //   try {
+    //     await this.reloadSheet({ id: this.docid })
+    //     this.$router.push(`/sheets/${this.docid}`)
+    //   } catch (err) {
+    //     console.log(err.response)
+    //     this.addNotification({
+    //       message: `${err.response.status} ${err.response.data.errorMessage}`,
+    //       level: "danger"
+    //     })
+    //   } finally {
+    //     this.loading = false
+    //   }
+    // }
   },
   async created() {
     this.sheets = await this.getSheets()

@@ -1,18 +1,67 @@
 <template>
 <div class="sheet-settings">
-<div class="form">
-  <h3 class="title is-4">Google Spreadsheet</h3>
-  <div class="field">
-    <label class="label">Access Mode</label>
-    <div class="control">
-      <div class="select">
-        <select v-model="config.access">
-          <option value="public">Public Access</option>
-          <option value="private">Private Access</option>
-        </select>
-      </div>
+<h3 class="title is-4">Cache</h3>
+<nav class="level">
+  <!-- Left side -->
+  <div class="level-left">
+    <div class="level-item">
+      <a :class="{'button':true, 'is-info': true, 'is-loading': loading, 'is-small': true }" v-on:click="cacheInfoAction(false)">
+        <span class="icon">
+          <i class="fas fa-sync-alt"></i>
+        </span>
+        <span>Refresh</span>
+      </a>
+    </div>
+    <div class="level-item">
+      <a :class="{'button':true, 'is-info': true, 'is-loading': loading, 'is-small': true }" v-on:click="cacheInfoAction(true)">
+        <span class="icon">
+          <i class="fas fa-eye"></i>
+        </span>
+        <span>Show Items</span>
+      </a>
     </div>
   </div>
+  <!-- Right side -->
+  <div class="level-right">
+    <p class="level-item">
+      <a :class="{'button':true, 'is-danger': true, 'is-loading': clearing, 'is-small': true }" v-on:click="clearCacheAction()">
+        <span class="icon">
+          <i class="fas fa-trash-alt"></i>
+        </span>
+        <span>Clear Cache</span>
+      </a>
+    </p>
+  </div>
+</nav>
+<table class="table" v-if="cache">
+  <tbody>
+    <tr>
+      <th>Key</th>
+      <td>{{ cache.key || 'Uninitialized' }}</td>
+    </tr>
+    <tr>
+      <th>Number of Items</th>
+      <td class="num-items">
+        <span class="value">{{ cache && cache.n }}</span>
+      </td>
+    </tr>
+    <tr>
+      <th>Expiration</th>
+      <td>{{ expires }}</td>
+    </tr>
+    <tr v-if="cache && cache.values">
+      <th>Items</th>
+      <td>
+        <div class="bd-snippet-code highlight-full bd-is-more" v-if="cache && cache.values">
+          <figure class="highlight"><pre><code class="language-html" data-lang="html">{{ cache.values }}</code></pre></figure>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br/>
+<div class="form">
+  <h3 class="title is-4">Google Spreadsheet</h3>
   <br/>
   <div class="field">
     <label class="label">Value Render Option</label>
@@ -26,50 +75,11 @@
     </div>
   </div>
   <br/>
-  <h3 class="title is-4">Data Types</h3>
-  <p v-show="!sheet">Loading ...</p>
-  <div class="schema-form">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Field Name</th>
-          <th>Data Type</th>
-          <th>Sample Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="col in config.columns" v-bind:key="col.name" :class="{ embedded: col.embedded }">
-          <th v-if="!col.embedded">{{ col.name }}</th>
-          <th v-if="col.embedded">&rdsh; {{ col.name }}</th>
-          <td>
-            <div class="control">
-              <div class="select is-small">
-                <select v-model="col.datatype">
-                  <option>String</option>
-                  <option>Int</option>
-                  <option>Float</option>
-                  <option>Boolean</option>
-                  <option>Date</option>
-                  <option>Datetime</option>
-                  <option>StringList</option>
-                  <option>GoogleDoc</option>
-                  <option>JSON</option>
-                </select>
-              </div>
-            </div>
-          </td>
-          <td><em>{{ formatSample(col) }}</em></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <br/>
-  <br/>
   <nav class="level">
     <!-- Left side -->
     <div class="level-left">
       <div class="level-item">
-        <a :class="{'button':true, 'is-info': true, 'is-loading': saving }" v-on:click="saveAction()">
+        <a :class="{'button':true, 'is-success': true, 'is-loading': saving, 'is-small': true }" v-on:click="saveAction()">
           <span class="icon">
             <i class="fas fa-save"></i>
           </span>
@@ -79,14 +89,25 @@
     </div>
     <!-- Right side -->
     <div class="level-right">
-      <p class="level-item">
-        <p class="control">
-          <a class="button is-danger is-outlined" v-on:click="showDelete" v-if="sheet.id">Delete Supersheet</a>
-        </p>
-      </p>
     </div>
   </nav>
 </div>
+<br/>
+<hr/>
+
+<nav class="level">
+  <!-- Left side -->
+  <div class="level-left">
+    <div class="level-item">
+      <p class="control">
+        <a class="button is-danger is-outlined" v-on:click="showDelete" v-if="sheet.id">Delete Supersheet</a>
+      </p>
+    </div>
+  </div>
+  <!-- Right side -->
+  <div class="level-right">
+  </div>
+</nav>
 <div :class="{'modal':true, 'is-active': showdelete }">
   <div class="modal-background"></div>
   <div class="modal-card">
@@ -119,16 +140,23 @@ export default {
       deleting: false,
       showdelete: false,
       saving: false,
+      clearing: false,
+      loading: false,
       config: { }
     }
   },
   computed: {
     ...mapState([
       'user',
-      'sheet'
+      'sheet',
+      'cache'
     ]),
-    accessMode: function() {
-      return this.sheet && this.sheet.config && this.sheet.config.access || 'public'
+    expires() {
+      if (!this.cache) return '...'
+      if (this.cache.ttl == -1) {
+        return 'Never'
+      } 
+      return `${moment().add(this.cache.ttl, 'seconds').fromNow()}`
     }
   },
   watch: {
@@ -143,12 +171,25 @@ export default {
     ]),
     ...mapActions([
       'saveSheet',
-      'deleteSheet'
+      'deleteSheet',
+      'deleteCache',
+      'getCacheInfo'
     ]),
+    async clearCacheAction() {
+      this.clearing = true
+      await this.deleteCache({ id: this.sheet.id })
+      this.clearing = false
+    },
+    async cacheInfoAction(values) {
+      this.loading = true
+      await this.getCacheInfo({ id: this.sheet.id, values})
+      this.loading = false
+    },
     async saveAction() {
       this.saving = true
-      let metadata = this.convertToConfig(this.config)
-      let res = await this.saveSheet({ id: this.sheet.id, metadata })
+      let config = Object.assign({ }, this.sheet.config, this.config)
+      console.log("CONFIG", config)
+      let res = await this.saveSheet({ id: this.sheet.id, metadata: { config } })
       this.saving = false
     },
     async deleteAction() {
@@ -177,80 +218,17 @@ export default {
     closeDelete() {
       this.showdelete = false
     },
-    convertToConfig(config) {
-      let current = this.sheet.config || { }
-      current.access = config.access
-      current.mode = config.mode
-      let datatypes = { }
-      for (let col of config.columns) {
-        if (col.embedded) {
-          datatypes[`${col.embedded}.${col.name}`] = col.datatype
-        } else {
-          datatypes[col.name] = col.datatype
-        }
-      }
-      current.datatypes = datatypes
-      return { config: current }
-    },
     initmetadata() {
       if (!this.sheet || !this.sheet.id) {
-        return { access: 'public', mode: '', columns: [ ] }
+        return { mode: '' }
       }
-      let access = this.accessMode
       let mode = this.sheet && this.sheet.config && this.sheet.config.mode || 'FORMATTED'
-      let datatypes = this.sheet && this.sheet.config && this.sheet.config.datatypes || { }
-      let columns = JSON.parse(JSON.stringify(this.sheet.schema.columns))
-      for (let col of columns) {
-        if (datatypes[col.name]) {
-          col.datatype = datatypes[col.name]
-        }
-      }
-      columns = insertGoogleDocColumns(columns, this.sheet.schema.docs, datatypes)
-      return { access, mode, columns }
-    },
-    formatSample(col) {
-      if (col.datatype == "String") {
-        if (col.sample && col.sample.length > 50) {
-          return `${col.sample.substring(0, 47)}...`
-        } else {
-          return col.sample
-        }
-      } else if (col.datatype == "GoogleDoc") {
-        if (typeof col.sample == "object") {
-          return `${JSON.stringify(col.sample).substring(0, 47)}...`
-        } else {
-          return `${col.sample.substring(0, 47)}...`
-        }
-      } else {
-        return col.sample
-      }
+      return { mode  }
     }
   },
   async created() {
     this.config = this.initmetadata()
   }
-}
-
-function insertGoogleDocColumns(columns, docs, datatypes) {
-  if (!docs) return
-  let newcolumns = [ ]
-  for (let i=0; i<columns.length; i++) {
-    let column = columns[i]
-    newcolumns.push(column)
-    if (column.datatype != "GoogleDoc" || !docs[column.name]) continue
-    let doccolumns = docs[column.name].columns
-    for (let doccolumn of doccolumns) {
-      let copy = JSON.parse(JSON.stringify(doccolumn))
-      copy.name = `${copy.name}`
-      copy.embedded = column.name
-      if (datatypes[`${column.name}.${copy.name}`]) {
-        copy.datatype = datatypes[`${column.name}.${copy.name}`]
-      }
-      newcolumns.push(copy)
-    }
-  }
-  console.log("NEWCOLUMNS", newcolumns)
-  return newcolumns
 }
 
 </script>

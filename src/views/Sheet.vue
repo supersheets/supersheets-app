@@ -11,7 +11,6 @@
         <ul>
           <li :class="menuClass('Start')"><a v-on:click="selectmenu('Start')">Getting Started</a></li>
           <li :class="menuClass('Fields')"><a v-on:click="selectmenu('Fields')">Fields</a></li>
-          <li :class="menuClass('Stats')"><a v-on:click="selectmenu('Stats')">Stats</a></li>
           <li :class="menuClass('History')" v-show="false"><a v-on:click="selectmenu('History')">History</a></li>
           <li :class="menuClass('Settings')"><a v-on:click="selectmenu('Settings')">Settings</a></li>
         </ul>
@@ -22,7 +21,6 @@
     <div class="container">
       <SheetStart v-show="isSelected('Start')" v-if="loaded"></SheetStart>
       <Overview v-show="isSelected('Fields')" v-if="loaded"></Overview>
-      <SheetStats v-show="isSelected('Stats')" v-if="loaded"></SheetStats>
       <SheetSettings v-show="isSelected('Settings')" v-if="loaded"></SheetSettings>
     </div>
   </section>

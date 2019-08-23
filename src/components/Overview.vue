@@ -1,24 +1,58 @@
 <template>
 <div class="overview">
-  <h3 class="title is-4" v-if="sheet.schema">Fields</h3>
-  <table class="table is-striped" v-if="sheet.schema">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Data Type</th>
-        <th>Sample Value</th>
-        <th>Sheets</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="col in sheet.schema.columns" v-bind:key="col.name">
-        <th>{{ col.name }}</th>
-        <td>{{ col.datatype }}</td>
-        <td><em>{{ formatSample(col) }}</em></td>
-        <td>{{ col.sheets && col.sheets.join(', ') || '' }}</td>
-      </tr>
-    </tbody>
-  </table>
+<table class="table" v-if="sheet.schema">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Data Type</th>
+      <th></th>
+      <th>Sample Value</th>
+      <th>Sheets</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="col in columns" v-bind:key="col.name" :class="{ 'highlight': (col.datatype != col.configdatatype) }">
+      <th v-if="!col.embedded">{{ col.name }}</th>
+      <th v-if="col.embedded">&rdsh; {{ col.name }}</th>
+      <td>{{ col.datatype }}</td>
+      <td>
+        <div class="control">
+          <div class="select is-small">
+            <select v-model="col.configdatatype">
+              <option>String</option>
+              <option>Int</option>
+              <option>Float</option>
+              <option>Boolean</option>
+              <option>Date</option>
+              <option>Datetime</option>
+              <option>StringList</option>
+              <option>GoogleDoc</option>
+              <option>JSON</option>
+            </select>
+          </div>
+        </div>
+      </td>
+      <td><em>{{ formatSample(col) }}</em></td>
+      <td>{{ col.sheets && col.sheets.join(', ') || '' }}</td>
+    </tr>
+  </tbody>
+</table>
+<nav class="level">
+  <!-- Left side -->
+  <div class="level-left">
+    <div class="level-item">
+      <a :class="{'button':true, 'is-success': true, 'is-loading': saving }" v-on:click="saveAction()">
+        <span class="icon">
+          <i class="fas fa-save"></i>
+        </span>
+        <span>Save Fields</span>
+      </a>
+    </div>
+  </div>
+  <!-- Right side -->
+  <div class="level-right">
+  </div>
+</nav>
 </div>
 </template>
 
@@ -32,7 +66,8 @@ export default {
   },
   data: () => {
     return {
-      loading: false,
+      saving: false,
+      columns: [ ]
     }
   },
   computed: {
@@ -65,31 +100,55 @@ export default {
       return this.sheet && this.sheet.config && this.sheet.config.access || 'public'
     }
   },
+  watch: {
+    sheet: function (newSheet, oldSheet) {
+      this.columns = this.initColumns()
+    }
+  },
   methods: {
     ...mapMutations([
       'addNotification',
       'removeNotification'
     ]),
     ...mapActions([
-      'reloadSheet',
+      'saveSheet',
+      'getSheet'
     ]),
-    async reload() {
-      this.loading = true
+    async saveAction() {
+      this.saving = true
+      let datatypes = convertToDatatypes(this.columns)
+      let config = Object.assign({ }, this.sheet.config, { datatypes })
+      console.log("Saving metadata", { config })
       try {
-        await this.reloadSheet({ id: this.sheet.id })
+        await this.saveSheet({ id: this.sheet.id, metadata: { config } })
+        await this.getSheet({ id: this.sheet.id })
+        this.columns = this.initColumns()
         this.addNotification({
-          message: `Reloaded successfully`,
+          message: `Updated fields successfully`,
           level: "success"
         })
       } catch (err) {
-        console.log(err.response)
         this.addNotification({
-          message: `${err.response.status} ${err.response.data.errorMessage}`,
+          message: `Error: ${err.message}`,
           level: "danger"
         })
       } finally {
-        this.loading = false
+        this.saving = false
       }
+    },
+    initColumns() {
+      if (!this.sheet || !this.sheet.id) {
+        return [ ]
+      }
+      let datatypes = this.sheet && this.sheet.config && this.sheet.config.datatypes || { }
+      let columns = JSON.parse(JSON.stringify(this.sheet.schema.columns))
+      for (let col of columns) {
+        if (datatypes[col.name]) {
+          col.configdatatype = datatypes[col.name]
+        }
+      }
+      columns = insertGoogleDocColumns(columns, this.sheet.schema.docs, datatypes)
+      return columns
     },
     formatSample(col) {
       if (col.datatype == "String") {
@@ -110,9 +169,45 @@ export default {
     }
   },
   async created() {
-
+    this.columns = this.initColumns()
   }
 }
+
+function insertGoogleDocColumns(columns, docs, datatypes) {
+  if (!docs) return columns
+  let newcolumns = [ ]
+  for (let i=0; i<columns.length; i++) {
+    let column = columns[i]
+    newcolumns.push(column)
+    if (column.datatype != "GoogleDoc" || !docs[column.name]) continue
+    let doccolumns = docs[column.name].columns
+    for (let doccolumn of doccolumns) {
+      let copy = JSON.parse(JSON.stringify(doccolumn))
+      copy.name = `${copy.name}`
+      copy.embedded = column.name
+      if (datatypes[`${column.name}.${copy.name}`]) {
+        copy.configdatatype = datatypes[`${column.name}.${copy.name}`]
+      } else {
+        copy.configdatatype = "String"
+      }
+      newcolumns.push(copy)
+    }
+  }
+  return newcolumns
+}
+
+function convertToDatatypes(columns) {
+  let datatypes = { }
+  for (let col of columns) {
+    if (col.embedded) {
+      datatypes[`${col.embedded}.${col.name}`] = col.configdatatype
+    } else {
+      datatypes[col.name] = col.configdatatype
+    }
+  }
+  return datatypes
+}
+
 </script>
 
 <style scoped>
@@ -126,6 +221,10 @@ p.updated-at .help {
 
 .column.note {
   background: #f6f6f6;
+}
+
+tr.highlight {
+  background: #FFC;
 }
 </style>
 

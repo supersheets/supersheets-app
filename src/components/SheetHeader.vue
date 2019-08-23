@@ -127,7 +127,7 @@ export default {
       return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${this.sheet.id}/graphql`
     },
     playgroundurl: function() {
-      return `${this.endpoint}/graphql/playground`
+      return `${this.endpoint}/playground`
     },
     numfields: function() {
       if (!this.sheet || !this.sheet.id) return -1
@@ -145,29 +145,10 @@ export default {
       'removeNotification'
     ]),
     ...mapActions([
-      'reloadSheet',
       'startLoad',
       'checkLoadStatus',
       'endLoad'
     ]),
-    async reload() {
-      this.loading = true
-      try {
-        await this.reloadSheet({ id: this.sheet.id })
-        this.addNotification({
-          message: `Reloaded successfully`,
-          level: "success"
-        })
-      } catch (err) {
-        console.log(err.response)
-        this.addNotification({
-          message: `${err.response.status} ${err.response.data.errorMessage}`,
-          level: "danger"
-        })
-      } finally {
-        this.loading = false
-      }
-    },
     async load() {
       this.clearLoadStatus()
       this.loading = true
