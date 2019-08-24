@@ -1,6 +1,6 @@
 <template>
 <div class="overview">
-<table class="table" v-if="sheet.schema">
+<table class="table" v-if="columns">
   <thead>
     <tr>
       <th>Name</th>
@@ -20,14 +20,14 @@
           <div class="select is-small">
             <select v-model="col.configdatatype">
               <option>String</option>
-              <option>Int</option>
-              <option>Float</option>
-              <option>Boolean</option>
-              <option>Date</option>
-              <option>Datetime</option>
-              <option>StringList</option>
-              <option>GoogleDoc</option>
-              <option>JSON</option>
+              <option v-if="unformatted">Int</option>
+              <option v-if="unformatted">Float</option>
+              <option v-if="unformatted">Boolean</option>
+              <option v-if="unformatted">Date</option>
+              <option v-if="unformatted">Datetime</option>
+              <option v-if="unformatted">StringList</option>
+              <option v-if="unformatted">GoogleDoc</option>
+              <option v-if="unformatted">JSON</option>
             </select>
           </div>
         </div>
@@ -98,6 +98,9 @@ export default {
     },
     accessMode: function() {
       return this.sheet && this.sheet.config && this.sheet.config.access || 'public'
+    },
+    unformatted: function() {
+      return this.sheet && this.sheet.config && this.sheet.config.mode == 'UNFORMATTED' || false
     }
   },
   watch: {
@@ -140,14 +143,37 @@ export default {
       if (!this.sheet || !this.sheet.id) {
         return [ ]
       }
+      if (!this.sheet.schema) {
+        return this.initOldColumns()
+      }
       let datatypes = this.sheet && this.sheet.config && this.sheet.config.datatypes || { }
       let columns = JSON.parse(JSON.stringify(this.sheet.schema.columns))
       for (let col of columns) {
         if (datatypes[col.name]) {
           col.configdatatype = datatypes[col.name]
+        } else {
+          col.configdatatype = "String"
         }
       }
       columns = insertGoogleDocColumns(columns, this.sheet.schema.docs, datatypes)
+      return columns
+    },
+    initOldColumns() {
+      let names = { }
+      let columns = [ ]
+      for (let sheet of this.sheet.sheets) {
+        for (let name of sheet.columns) {
+          if (!names[name]) {
+            columns.push({
+              name: name,
+              datatype: "String",
+              configdatatype: "String"
+            })
+            names[name] = true
+          }
+        }
+      }
+      console.log('initOldColumns', columns)
       return columns
     },
     formatSample(col) {

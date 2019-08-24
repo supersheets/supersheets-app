@@ -205,11 +205,8 @@ export default {
 </script>
 
 <style scoped>
-p.updated-at .help {
-  padding: .4rem 0 .4rem 0
-}
 p.progress-bar progress {
-  margin-top: .25rem
+  margin-top: 0rem
 }
 
 .field.endpoint {
