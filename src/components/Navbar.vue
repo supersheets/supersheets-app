@@ -11,12 +11,15 @@
     </div>
     <div class="navbar-menu">
       <div class="navbar-start">
-        <div class="navbar-item" v-if="mode != 'production'">
-          <span class="tag is-warning">{{ mode }}</span>
+        <div class="navbar-item" v-if="user">
+          <router-link to="/">Sheets</router-link>
         </div>
       </div>
       
       <div class="navbar-end">
+        <div class="navbar-item" v-if="mode != 'production'">
+          <span class="tag is-warning">{{ mode }}</span>
+        </div>
         <div class="navbar-item" v-if="!user">
           Loading ...
           <div class="buttons" v-if="false">
