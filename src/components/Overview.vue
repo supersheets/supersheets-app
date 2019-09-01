@@ -11,13 +11,13 @@
     </tr>
   </thead>
   <tbody>
-    <tr v-for="col in columns" v-bind:key="col.name" :class="{ 'highlight': (col.datatype != col.configdatatype) }">
+    <tr v-for="col in columns" v-bind:key="col.name" :class="{ 'highlight': (col.datatype != col.configdatatype), 'reserved': col.reserved }">
       <th v-if="!col.embedded">{{ col.name }}</th>
       <th v-if="col.embedded">&rdsh; {{ col.name }}</th>
       <td>{{ col.datatype }}</td>
       <td>
         <div class="control">
-          <div class="select is-small">
+          <div class="select is-small" v-if="!col.reserved">
             <select v-model="col.configdatatype">
               <option>String</option>
               <option v-if="unformatted">Int</option>
@@ -30,6 +30,7 @@
               <option v-if="unformatted">JSON</option>
             </select>
           </div>
+          <span class="help is-italic" v-if="col.reserved">Reserved</span>
         </div>
       </td>
       <td><em>{{ formatSample(col) }}</em></td>
@@ -149,13 +150,9 @@ export default {
       let datatypes = this.sheet && this.sheet.config && this.sheet.config.datatypes || { }
       let columns = JSON.parse(JSON.stringify(this.sheet.schema.columns))
       for (let col of columns) {
-        if (datatypes[col.name]) {
-          col.configdatatype = datatypes[col.name]
-        } else {
-          col.configdatatype = "String"
-        }
+        col.configdatatype = datatypes[col.name] || col.datatype || "String"
       }
-      columns = insertGoogleDocColumns(columns, this.sheet.schema.docs, datatypes)
+      columns = insertGoogleDocColumns(columns, datatypes)
       return columns
     },
     initOldColumns() {
@@ -199,24 +196,18 @@ export default {
   }
 }
 
-function insertGoogleDocColumns(columns, docs, datatypes) {
-  if (!docs) return columns
+function insertGoogleDocColumns(columns, datatypes) {
   let newcolumns = [ ]
   for (let i=0; i<columns.length; i++) {
     let column = columns[i]
     newcolumns.push(column)
-    if (column.datatype != "GoogleDoc" || !docs[column.name]) continue
-    let doccolumns = docs[column.name].columns
-    for (let doccolumn of doccolumns) {
-      let copy = JSON.parse(JSON.stringify(doccolumn))
-      copy.name = `${copy.name}`
-      copy.embedded = column.name
-      if (datatypes[`${column.name}.${copy.name}`]) {
-        copy.configdatatype = datatypes[`${column.name}.${copy.name}`]
-      } else {
-        copy.configdatatype = "String"
+    if (column.fields) {
+      for (let field of column.fields) {
+        let copy = JSON.parse(JSON.stringify(field))
+        copy.embedded = column.name
+        copy.configdatatype = datatypes[`${column.name}.${copy.name}`] || copy.datatype || "String"
+        newcolumns.push(copy)
       }
-      newcolumns.push(copy)
     }
   }
   return newcolumns
@@ -224,7 +215,7 @@ function insertGoogleDocColumns(columns, docs, datatypes) {
 
 function convertToDatatypes(columns) {
   let datatypes = { }
-  for (let col of columns) {
+  for (let col of columns.filter(col => !col.reserved)) {
     if (col.embedded) {
       datatypes[`${col.embedded}.${col.name}`] = col.configdatatype
     } else {
@@ -251,6 +242,9 @@ p.updated-at .help {
 
 tr.highlight {
   background: #FFC;
+}
+tr.reserved {
+  background: #f6f6f6;
 }
 </style>
 

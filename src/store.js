@@ -156,12 +156,12 @@ export default new Vuex.Store({
       return state.sheet
     },
     async startLoad({dispatch, commit, state, getters}, { id }) {
-      let params = { idptoken: getters.idptoken }
+      // let params = { idptoken: getters.idptoken }
       commit('updateLoadStatus', { message: "Loading ..." })
-      let metadata = (await state.axios.post(`${id}`, { params })).data
-      commit('updateLoadStatus', { message: "Loaded metadata" })
-      let status = (await state.axios.post(`${id}/load`, { params })).data
-      commit('updateLoadStatus', { message: `Loading ${metadata.sheets.length} sheets ...`, num_sheets_total: metadata.sheets.length })
+      // let metadata = (await state.axios.post(`${id}`, { params })).data
+      // commit('updateLoadStatus', { message: "Loaded metadata" })
+      let status = (await state.axios.post(`${id}/load`)).data
+      commit('updateLoadStatus', { message: `Load started ...` })
       return status
     },
     async checkLoadStatus({dispatch, commit, state, getters}, { id, uuid }) {
@@ -173,14 +173,14 @@ export default new Vuex.Store({
       await dispatch('deleteCache', { id })
       await dispatch('getSheet', { id })
     },
-    async reloadSheet({dispatch, commit, state, getters}, { id }) {
-      let params = { idptoken: getters.idptoken }
-      await state.axios.get(`${id}/meta`, { params })
-      let sheet = (await state.axios.get(`${id}/load`, { params })).data
-      commit('setSheet', sheet)
-      let deleteCache = await dispatch('deleteCache', { id })
-      return { sheet: state.sheet, deleteCache }
-    },
+    // async reloadSheet({dispatch, commit, state, getters}, { id }) {
+    //   let params = { idptoken: getters.idptoken }
+    //   await state.axios.get(`${id}/meta`, { params })
+    //   let sheet = (await state.axios.get(`${id}/load`, { params })).data
+    //   commit('setSheet', sheet)
+    //   let deleteCache = await dispatch('deleteCache', { id })
+    //   return { sheet: state.sheet, deleteCache }
+    // },
     async deleteSheet({dispatch, commit, state, getters}, { id }) {
       let res = (await state.axios.delete(`${id}`)).data
       commit('setSheet', { title: "Loading ..." })
