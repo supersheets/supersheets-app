@@ -1,96 +1,102 @@
 <template>
 <div class="sheet-settings">
-<h3 class="title is-4">Cache</h3>
-<nav class="level">
-  <!-- Left side -->
-  <div class="level-left">
-    <div class="level-item">
-      <a :class="{'button':true, 'is-info': true, 'is-loading': loading, 'is-small': true }" v-on:click="cacheInfoAction(false)">
-        <span class="icon">
-          <i class="fas fa-sync-alt"></i>
-        </span>
-        <span>Refresh</span>
-      </a>
-    </div>
-    <div class="level-item">
-      <a :class="{'button':true, 'is-info': true, 'is-loading': loading, 'is-small': true }" v-on:click="cacheInfoAction(true)">
-        <span class="icon">
-          <i class="fas fa-eye"></i>
-        </span>
-        <span>Show Items</span>
-      </a>
-    </div>
-  </div>
-  <!-- Right side -->
-  <div class="level-right">
-    <p class="level-item">
-      <a :class="{'button':true, 'is-danger': true, 'is-loading': clearing, 'is-small': true }" v-on:click="clearCacheAction()">
-        <span class="icon">
-          <i class="fas fa-trash-alt"></i>
-        </span>
-        <span>Clear Cache</span>
-      </a>
-    </p>
-  </div>
-</nav>
-<table class="table" v-if="cache">
-  <tbody>
-    <tr>
-      <th>Key</th>
-      <td>{{ cache.key || 'Uninitialized' }}</td>
-    </tr>
-    <tr>
-      <th>Number of Items</th>
-      <td class="num-items">
-        <span class="value">{{ cache && cache.n }}</span>
-      </td>
-    </tr>
-    <tr>
-      <th>Expiration</th>
-      <td>{{ expires }}</td>
-    </tr>
-    <tr v-if="cache && cache.values">
-      <th>Items</th>
-      <td>
-        <div class="bd-snippet-code highlight-full bd-is-more" v-if="cache && cache.values">
-          <figure class="highlight"><pre><code class="language-html" data-lang="html">{{ cache.values }}</code></pre></figure>
+<div class="columns">
+  <div class="column is-9">
+    <h3 class="title is-4">Cache</h3>
+    <nav class="level">
+      <!-- Left side -->
+      <div class="level-left">
+        <div class="level-item">
+          <a :class="{'button':true, 'is-info': true, 'is-loading': loading, 'is-small': true }" v-on:click="cacheInfoAction(false)">
+            <span class="icon">
+              <i class="fas fa-sync-alt"></i>
+            </span>
+            <span>Refresh</span>
+          </a>
         </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<br/>
-<div class="form">
-  <h3 class="title is-4">Google Spreadsheet</h3>
-  <br/>
-  <div class="field">
-    <label class="label">Value Render Option</label>
-    <div class="control">
-      <div class="select">
-        <select v-model="config.mode">
-          <option value="FORMATTED">FORMATTED</option>
-          <option value="UNFORMATTED">UNFORMATTED</option>
-        </select>
+        <div class="level-item">
+          <a :class="{'button':true, 'is-info': true, 'is-loading': loading, 'is-small': true }" v-on:click="cacheInfoAction(true)">
+            <span class="icon">
+              <i class="fas fa-eye"></i>
+            </span>
+            <span>Show Items</span>
+          </a>
+        </div>
       </div>
+      <!-- Right side -->
+      <div class="level-right">
+        <p class="level-item">
+          <a :class="{'button':true, 'is-danger': true, 'is-loading': clearing, 'is-small': true }" v-on:click="clearCacheAction()">
+            <span class="icon">
+              <i class="fas fa-trash-alt"></i>
+            </span>
+            <span>Clear Cache</span>
+          </a>
+        </p>
+      </div>
+    </nav>
+    <table class="table" v-if="cache">
+      <tbody>
+        <tr>
+          <th>Key</th>
+          <td>{{ cache.key || 'Uninitialized' }}</td>
+        </tr>
+        <tr>
+          <th>Number of Items</th>
+          <td class="num-items">
+            <span class="value">{{ cache && cache.n }}</span>
+          </td>
+        </tr>
+        <tr>
+          <th>Expiration</th>
+          <td>{{ expires }}</td>
+        </tr>
+        <tr v-if="cache && cache.values">
+          <th>Items</th>
+          <td>
+            <div class="bd-snippet-code highlight-full bd-is-more" v-if="cache && cache.values">
+              <figure class="highlight"><pre><code class="language-html" data-lang="html">{{ cache.values }}</code></pre></figure>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br/>
+    <div class="form">
+      <h3 class="title is-4">Google Spreadsheet</h3>
+      <br/>
+      <div class="field">
+        <label class="label">Value Render Option</label>
+        <div class="control">
+          <div class="select">
+            <select v-model="config.mode">
+              <option value="FORMATTED">FORMATTED</option>
+              <option value="UNFORMATTED">UNFORMATTED</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <br/>
+      <nav class="level">
+        <!-- Left side -->
+        <div class="level-left">
+          <div class="level-item">
+            <a :class="{'button':true, 'is-success': true, 'is-loading': saving, 'is-small': true }" v-on:click="saveAction()">
+              <span class="icon">
+                <i class="fas fa-save"></i>
+              </span>
+              <span>Save Settings</span>
+            </a>
+          </div>
+        </div>
+        <!-- Right side -->
+        <div class="level-right">
+        </div>
+      </nav>
+    </div>
+    <div class="column">
     </div>
   </div>
-  <br/>
-  <nav class="level">
-    <!-- Left side -->
-    <div class="level-left">
-      <div class="level-item">
-        <a :class="{'button':true, 'is-success': true, 'is-loading': saving, 'is-small': true }" v-on:click="saveAction()">
-          <span class="icon">
-            <i class="fas fa-save"></i>
-          </span>
-          <span>Save Settings</span>
-        </a>
-      </div>
-    </div>
-    <!-- Right side -->
-    <div class="level-right">
-    </div>
-  </nav>
 </div>
 <br/>
 <hr/>

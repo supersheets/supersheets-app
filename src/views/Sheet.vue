@@ -9,10 +9,10 @@
     <div class="container">
       <div class="tabs">
         <ul>
-          <li :class="menuClass('Start')"><a v-on:click="selectmenu('Start')">Getting Started</a></li>
           <li :class="menuClass('Fields')"><a v-on:click="selectmenu('Fields')">Fields</a></li>
           <li :class="menuClass('History')" v-show="false"><a v-on:click="selectmenu('History')">History</a></li>
           <li :class="menuClass('Settings')"><a v-on:click="selectmenu('Settings')">Settings</a></li>
+          <li :class="menuClass('Start')"><a v-on:click="selectmenu('Start')">Getting Started</a></li>
         </ul>
       </div>
     </div>
@@ -49,7 +49,7 @@ export default {
   data: () => {
     return {
       loading: false,
-      selected: "Start",
+      selected: "Fields",
     }
   },
   computed: {

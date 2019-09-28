@@ -1,59 +1,67 @@
 <template>
 <div class="overview">
-<table class="table" v-if="columns">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Data Type</th>
-      <th></th>
-      <th>Sample Value</th>
-      <th>Sheets</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="col in columns" v-bind:key="col.name" :class="{ 'highlight': (col.datatype != col.configdatatype), 'reserved': col.reserved }">
-      <th v-if="!col.embedded">{{ col.name }}</th>
-      <th v-if="col.embedded">&rdsh; {{ col.name }}</th>
-      <td>{{ col.datatype }}</td>
-      <td>
-        <div class="control">
-          <div class="select is-small" v-if="!col.reserved">
-            <select v-model="col.configdatatype">
-              <option>String</option>
-              <option v-if="unformatted">Int</option>
-              <option v-if="unformatted">Float</option>
-              <option v-if="unformatted">Boolean</option>
-              <option v-if="unformatted">Date</option>
-              <option v-if="unformatted">Datetime</option>
-              <option v-if="unformatted">StringList</option>
-              <option v-if="unformatted">GoogleDoc</option>
-              <option v-if="unformatted">JSON</option>
-            </select>
-          </div>
-          <span class="help is-italic" v-if="col.reserved">Reserved</span>
+<div class="columns">
+  <div class="column is-9">
+    <table class="table" v-if="columns">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Data Type</th>
+          <th></th>
+          <th>Sample Value</th>
+          <th>Sheets</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="col in columns" v-bind:key="col.name" :class="{ 'highlight': (col.datatype != col.configdatatype), 'reserved': col.reserved }">
+          <th v-if="!col.embedded">{{ col.name }}</th>
+          <th v-if="col.embedded">&rdsh; {{ col.name }}</th>
+          <td>{{ col.datatype }}</td>
+          <td>
+            <div class="control">
+              <div class="select is-small" v-if="!col.reserved">
+                <select v-model="col.configdatatype">
+                  <option>String</option>
+                  <option v-if="unformatted">Int</option>
+                  <option v-if="unformatted">Float</option>
+                  <option v-if="unformatted">Boolean</option>
+                  <option v-if="unformatted">Date</option>
+                  <option v-if="unformatted">Datetime</option>
+                  <option v-if="unformatted">StringList</option>
+                  <option v-if="unformatted && !col.embedded">GoogleDoc</option>
+                  <option v-if="unformatted && col.embedded">Markdown</option>
+                  <option v-if="unformatted && col.embedded">PlainText</option>
+                  <option v-if="unformatted && col.embedded">Google JSON</option>
+                </select>
+              </div>
+              <span class="help is-italic" v-if="col.reserved">Reserved</span>
+            </div>
+          </td>
+          <td><em>{{ formatSample(col) }}</em></td>
+          <td>{{ col.sheets && col.sheets.join(', ') || '' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <nav class="level">
+      <!-- Left side -->
+      <div class="level-left">
+        <div class="level-item">
+          <a :class="{'button':true, 'is-success': true, 'is-loading': saving }" v-on:click="saveAction()">
+            <span class="icon">
+              <i class="fas fa-save"></i>
+            </span>
+            <span>Save Fields</span>
+          </a>
         </div>
-      </td>
-      <td><em>{{ formatSample(col) }}</em></td>
-      <td>{{ col.sheets && col.sheets.join(', ') || '' }}</td>
-    </tr>
-  </tbody>
-</table>
-<nav class="level">
-  <!-- Left side -->
-  <div class="level-left">
-    <div class="level-item">
-      <a :class="{'button':true, 'is-success': true, 'is-loading': saving }" v-on:click="saveAction()">
-        <span class="icon">
-          <i class="fas fa-save"></i>
-        </span>
-        <span>Save Fields</span>
-      </a>
-    </div>
+      </div>
+      <!-- Right side -->
+      <div class="level-right">
+      </div>
+    </nav>
+  </div> 
+  <div class="column">
   </div>
-  <!-- Right side -->
-  <div class="level-right">
-  </div>
-</nav>
+</div>
 </div>
 </template>
 
