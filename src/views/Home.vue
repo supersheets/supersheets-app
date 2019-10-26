@@ -2,7 +2,7 @@
   <div class="sheet">
     <section class="section header">
       <div class="container">
-        <h1 class="title is-2">All Sheets</h1>
+        <h1 class="title is-2">Sheets</h1>
         <div class="columns">
           <div class="column">
             <p v-show="loadingsheets">Loading ...</p>
@@ -12,12 +12,23 @@
                   <router-link :to="`sheets/${sheet.id}`">{{ sheet.title }}</router-link>
                 </p>
                 <p class="help">
-                  Last updated {{ sheet.updated_at.fromNow() }} on {{ sheet.updated_at.format('MMMM Do YYYY [at] h:mm:ss a') }} 
+                 
+                  <nav class="level">
+                    <div class="level-left">
+                      <div class="level-item">
+                        Last updated {{ sheet.updated_at.fromNow() }} by danieljyoo ({{ sheet.updated_at.format('LLLL') }})
+                      </div>
+                    </div>
+                    <div class="level-right">
+                      danieljyoo
+                    </div>
+                  </nav>
                 </p>
               </div>
             </div>
           </div>
           <div class="column is-4">
+            <a class="button is-medium is-danger" v-on:click="showPicker">Import Google Sheet</a>
             <article class="message is-success">
               <div class="message-header">
                 <p>Create Supersheet</p>
@@ -50,7 +61,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 const moment = require('moment')
 const docidRegex = new RegExp("/spreadsheets/d/([a-zA-Z0-9-_]+)")
 
@@ -70,6 +81,9 @@ export default {
     ...mapState([
       'user'
     ]),
+    ...mapGetters([
+      'idptoken'
+    ]),
     docid: function() {
       return this.url && docidRegex.exec(this.url)[1] || ''
     }
@@ -84,7 +98,8 @@ export default {
       'getSheets',
       'startLoad',
       'checkLoadStatus',
-      'endLoad'
+      'endLoad',
+      'showGooglePicker'
     ]),
     async load() {
       this.clearLoadStatus()
@@ -137,28 +152,19 @@ export default {
       } finally {
         // this.loading = false
       }
+    },
+    async showPicker() {
+      this.showGooglePicker({ google })
     }
-    // async reload() {
-    //   console.log("reload", this.docid)
-    //   this.loading = true
-    //   try {
-    //     await this.reloadSheet({ id: this.docid })
-    //     this.$router.push(`/sheets/${this.docid}`)
-    //   } catch (err) {
-    //     console.log(err.response)
-    //     this.addNotification({
-    //       message: `${err.response.status} ${err.response.data.errorMessage}`,
-    //       level: "danger"
-    //     })
-    //   } finally {
-    //     this.loading = false
-    //   }
-    // }
   },
   async created() {
     this.sheets = await this.getSheets()
     this.sheets.forEach(sheet => sheet.updated_at = moment(sheet.updated_at))
     this.loadingsheets = false
+
+    gapi.load("picker", () => {
+      console.log("Picker Loaded");
+    })
   }
 }
 </script>
