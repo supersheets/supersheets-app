@@ -2,12 +2,12 @@
   <div class="sheet">
     <section class="section header">
       <div class="container">
-        <h1 class="title is-2">Sheets</h1>
+        <h1 class="title is-2">Supersheets</h1>
         <div class="columns">
           <div class="column">
             <p v-show="loadingsheets">Loading ...</p>
             <div class="card" v-for="sheet in sheets">
-              <div class="card-content">
+              <div class="card-content">  
                 <p class="title is-4">
                   <router-link :to="`sheets/${sheet.id}`">{{ sheet.title }}</router-link>
                 </p>
@@ -28,8 +28,21 @@
             </div>
           </div>
           <div class="column is-4">
-            <a class="button is-medium is-danger" v-on:click="showPicker">Import Google Sheet</a>
-            <article class="message is-success">
+            <div class="field">
+              <div class="control">
+                <a :class="{ 'button':true, 'is-medium':true, 'is-danger':true, 'is-loading':loading }" v-on:click="showPicker" :disabled="!pickerloaded">
+                 <span class="icon is-medium" style="margin-right:.4rem;">
+                    <i class="fas fa-table"></i>
+                  </span>
+                  New Supersheet
+                </a>
+              </div>
+              <p class="help" v-show="!loading">
+                Select a Google Spreadsheet from your Google Drive to create a Supersheet. Your sheet must have public access: <em>Anyone with the link can view</em>.
+              </p>
+              <p class="help" v-show="loading">{{ message }}</p>
+            </div>
+            <article class="message is-success" v-if="false">
               <div class="message-header">
                 <p>Create Supersheet</p>
               </div>
@@ -44,7 +57,7 @@
                   </div>
                   <div class="field is-grouped">
                     <div class="control">
-                      <button :class="{'button':true, 'is-success':true, 'is-loading': loading}" :disabled="!docid" v-on:click="load">Create</button>
+                      <button :class="{'button':true, 'is-success':true, 'is-loading': loading }" :disabled="!docid" v-on:click="load">Create</button>
                     </div>
                     <div class="control">
                       <button class="button is-white" v-on:click="url = ''">Clear</button>
@@ -74,18 +87,24 @@ export default {
       loading: false,
       loadingsheets: true,
       url: "",
-      sheets: [ ]
+      pickedid: null,
+      sheets: [ ],
+      pickerloaded: false
     }
   },
   computed: {
     ...mapState([
-      'user'
+      'user',
+      'loadstatus'
     ]),
     ...mapGetters([
       'idptoken'
     ]),
     docid: function() {
-      return this.url && docidRegex.exec(this.url)[1] || ''
+      return this.pickedid || this.url && docidRegex.exec(this.url)[1] || ''
+    },
+    message: function () {
+      return `${this.loadstatus.message}`
     }
   },
   methods: {
@@ -154,7 +173,14 @@ export default {
       }
     },
     async showPicker() {
-      this.showGooglePicker({ google })
+      this.showGooglePicker({ google, callback: this.pickerCallback })
+    },
+    async pickerCallback(data) {
+      if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+        console.log("selected spreadsheet:", data.docs && data.docs[0]);
+        this.pickedid = data.docs && data.docs[0] && data.docs[0].id || null
+        await this.load()
+      }
     }
   },
   async created() {
@@ -163,7 +189,8 @@ export default {
     this.loadingsheets = false
 
     gapi.load("picker", () => {
-      console.log("Picker Loaded");
+      console.log("picker loaded")
+      this.pickerloaded = true
     })
   }
 }

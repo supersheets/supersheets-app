@@ -229,12 +229,16 @@ export default new Vuex.Store({
       }
     },
     // GOOGLE PICKER ACTIONS
-    async showGooglePicker({dispatch, commit, state, getters}, { google }) {
+    async showGooglePicker({dispatch, commit, state, getters}, { google, callback }) {
+      let view = new google.picker.DocsView()
+      view.setIncludeFolders(true)
+      view.setSelectFolderEnabled(false)
       let picker =  new google.picker.PickerBuilder()
         .addView(google.picker.ViewId.SPREADSHEETS)
+        .addView(view)
         .addView(google.picker.ViewId.RECENTLY_PICKED)
         .setOAuthToken(getters.idptoken)
-        .setCallback(googlePickerCallback)
+        .setCallback(callback)
         .build()
       picker.setVisible(true)
     }
@@ -271,29 +275,4 @@ function checkSessionPromise() {
 function getGoogleIDPTokenFromAccount(account) {
   let identity = account.identities.find(idp => idp.provider == "google-oauth2")
   return identity && identity.access_token || null
-}
-
-
-
-async function googlePickerCallback(data) {
-  if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
-    console.log("PickerCallback Files : ", data.docs);
-    let docs = data.docs;
-    for (let i = 0; i < docs.length; i++) {
-      console.log(docs[i].id)
-      // attachment._id = docs[i].id;
-      // attachment.title = docs[i].name;
-      // attachment.name = docs[i].name + "." + docs[i].mimeType.split("/")[1];
-      // attachment.type = "gDrive";
-      // attachment.description = "Shared with GDrive";
-      // attachment.extension =
-      //   "." +
-      //   docs[i].mimeType.substring(docs[i].mimeType.lastIndexOf(".") + 1);
-      // attachment.size = docs[i].sizeBytes;
-      // attachment.user = JSON.parse(localStorage.getItem("user"));
-      // attachment.thumb = null;
-      // attachment.thumb_list = null;
-      // attachments.push(attachment);
-    }
-  }
 }

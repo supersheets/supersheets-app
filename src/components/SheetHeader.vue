@@ -2,59 +2,65 @@
 <div class="sheet-header">
   <h1 class="title is-2">{{ sheet.title }}</h1>
   <nav class="level">
-  <!-- Left side -->
-  <div class="level-left">
-    <div class="level-item">
-      <p class="control">
-        <a :class="{'button':true, 'is-loading':loading, 'is-success': true, 'is-small': true }" v-on:click="load">
-          <span class="icon">
-            <i class="fas fa-sync-alt"></i>
+    <div class="level-left">
+      <div class="level-item">
+        <p class="control">
+          <a :class="{'button':true, 'is-loading':loading, 'is-danger': true }" v-on:click="load">
+            <span class="icon">
+              <i class="fas fa-sync-alt"></i>
+            </span>
+            <span>Reload Sheet</span>
+          </a>
+        </p>
+      </div>
+      <div class="level-item">
+        <p class="control">
+          <a :class="{'button':true, 'is-danger': true, 'is-outlined': true }" target="_blank" :href="playgroundurl">
+            <span>GraphQL Playground</span>
+            <span class="icon">
+              <i class="fas fa-play"></i>
+            </span>
+          </a>
+        </p>
+      </div>
+      <div class="level-item">
+        <p class="control">
+          <a :class="{'button':true, 'is-danger': true, 'is-outlined': true }" target="_blank" :href="this.sheet.url">
+            <span>Google Sheet</span>
+            <span class="icon">
+              <i class="fas fa-external-link-alt"></i>
+            </span>
+          </a>
+        </p>
+      </div>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control updated-at">
+          <span class="help" v-show="!loading">Last updated {{ updated }} by {{ updated_by }} ({{ updated_date }})</span>
+          <span class="help" v-show="loading">
+            {{ message }}
           </span>
-          <span>Reload Sheet</span>
-        </a>
-      </p>
+        </p>
+      </div>
     </div>
-    <div class="level-item">
-      <p class="control progress-bar" v-show="loading">
-        <progress class="progress is-info" :max="progress.max" style="width: 15rem;" v-if="progress.value == 0"></progress>
-        <progress class="progress is-info" :value="progress.value" :max="progress.max" style="width: 15rem;" v-if="progress.value > 0"></progress>
-      </p>
-    </div>
-    <div class="level-item">
-      <p class="control updated-at">
-        <span class="help" v-show="!loading">Last updated {{ updated }} by {{ updated_by }} ({{ updated_date }})</span>
-        <span class="help" v-show="loading">
-          {{ message }}
-        </span>
-      </p>
-    </div>
-  </div>
-
-  <!-- Right side -->
-  <div class="level-right">
-    <div class="level-item">
-      <p class="control">
-        <a :class="{'button':true, 'is-info': true, 'is-outlined': true, 'is-small': true }" target="_blank" :href="playgroundurl">
-          <span>GraphQL Playground</span>
-          <span class="icon">
-            <i class="fas fa-play"></i>
-          </span>
-        </a>
-      </p>
-    </div>
-    <div class="level-item">
-      <p class="control">
-        <a :class="{'button':true, 'is-info': true, 'is-outlined': true, 'is-small': true }" target="_blank" :href="this.sheet.url">
-          <span>Google Sheet</span>
-          <span class="icon">
-            <i class="fas fa-external-link-alt"></i>
-          </span>
-        </a>
-      </p>
-    </div>
-  </div>
   </nav>
-  <div class="field is-grouped is-grouped-multiline">
+  <nav class="level">
+    <div class="level-left">
+      <div class="level-item">
+        <p class="help" style="color:#000;font-weight:bold;">{{ endpoint }}</p>
+      </div>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <p class="control progress-bar" v-show="false && loading">
+          <progress class="progress is-info" :max="progress.max" style="width: 15rem;" v-if="progress.value == 0"></progress>
+          <progress class="progress is-info" :value="progress.value" :max="progress.max" style="width: 15rem;" v-if="progress.value > 0"></progress>
+        </p>
+      </div>
+    </div>
+  </nav>
+  <div class="field is-grouped is-grouped-multiline" v-if="false">
     <div class="control">
       <div class="tags has-addons">
         <span class="tag">Fields:</span>
