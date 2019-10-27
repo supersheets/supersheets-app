@@ -7,9 +7,10 @@
   </section>
   <section class="section main">
     <div class="container">
-      <div class="tabs">
+      <div class="tabs is-boxed">
         <ul>
-          <li :class="menuClass('Fields')"><a v-on:click="selectmenu('Fields')">Fields</a></li>
+          <li :class="menuClass('Schema')"><a v-on:click="selectmenu('Schema')">Schema</a></li>
+          <li :class="menuClass('Fields')"><a v-on:click="selectmenu('Fields')">Datatypes</a></li>
           <li :class="menuClass('History')" v-show="false"><a v-on:click="selectmenu('History')">History</a></li>
           <li :class="menuClass('Settings')"><a v-on:click="selectmenu('Settings')">Settings</a></li>
           <li :class="menuClass('Start')"><a v-on:click="selectmenu('Start')">Getting Started</a></li>
@@ -19,6 +20,7 @@
     <br/>
     <br/>
     <div class="container">
+      <SheetSchema v-show="isSelected('Schema')" v-if="loaded"></SheetSchema>
       <SheetStart v-show="isSelected('Start')" v-if="loaded"></SheetStart>
       <Overview v-show="isSelected('Fields')" v-if="loaded"></Overview>
       <SheetSettings v-show="isSelected('Settings')" v-if="loaded"></SheetSettings>
@@ -29,6 +31,7 @@
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
 import SheetHeader from '@/components/SheetHeader.vue'
+import SheetSchema from '@/components/SheetSchema.vue'
 import SheetStart from '@/components/SheetStart.vue'
 import SheetStats from '@/components/SheetStats.vue'
 import SheetSettings from '@/components/SheetSettings.vue'
@@ -41,6 +44,7 @@ export default {
   props: [ 'id' ],
   components: {
     SheetHeader,
+    SheetSchema,
     SheetStart,
     Overview,
     SheetStats,
@@ -49,7 +53,7 @@ export default {
   data: () => {
     return {
       loading: false,
-      selected: "Fields",
+      selected: "Schema",
     }
   },
   computed: {
@@ -62,7 +66,7 @@ export default {
     },
     updated: function () {
       if (!this.sheet || !this.sheet.updated_at) return "?"
-      let d = moment(this.sheet.updated_at)
+      let d = momgt(this.sheet.updated_at)
       return `${d.fromNow()} on ${d.format('MMMM Do YYYY [at] h:mm:ss a')}`
     }
   },

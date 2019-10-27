@@ -3,13 +3,13 @@ import Vuex from 'vuex'
 
 const axios = require('axios')
 const uuidV4 = require('uuid/v4')
+const { convertSpreadsheetToSchemaTables } = require('@/lib/schemautil.js') 
 
 Vue.use(Vuex)
 
 // Auth0 Configuration
 import auth0 from 'auth0-js'
-import router from './router';
-import { stat } from 'fs';
+
 const config = {
   domain: process.env.VUE_APP_AUTH0_DOMAIN,
   clientID: process.env.VUE_APP_AUTH0_CLIENTID,
@@ -33,7 +33,7 @@ export default new Vuex.Store({
     }),
     notifications: [ ],
     mode: process.env.VUE_APP_MODE,
-    loadstatus: { num_sheets_loaded: 0, num_sheets_total: -1, message: "Loading ...", sheets_loaded: [ ] }
+    loadstatus: { num_sheets_loaded: 0, num_sheets_total: -1, message: "Loading ...", sheets_loaded: [ ] },
   },
   getters: {
     isAuthenticated: (state, getters) => {
@@ -49,6 +49,9 @@ export default new Vuex.Store({
     graphqlendpoint: (state, getter) => {
       if (!state.sheet.id) return null
       return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${state.sheet.id}/graphql`
+    },
+    schemas: (state, getter) => {
+      return state.sheet.id && convertSpreadsheetToSchemaTables(state.sheet) || null
     }
   },
   mutations: {

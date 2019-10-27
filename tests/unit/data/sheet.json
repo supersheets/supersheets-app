@@ -1,0 +1,161 @@
+{
+  "id": 0,
+  "title": "Posts",
+  "index": 1,
+  "sheetType": "GRID",
+  "cols": [
+    "id",
+    "slug",
+    "title",
+    "content",
+    "author_names",
+    "author_emails",
+    "published",
+    "published_at"
+  ],
+  "schema": {
+    "columns": [
+      {
+        "name": "_id",
+        "datatype": "String",
+        "sample": "5d6b2f2f0c6d3f00074ad599",
+        "reserved": true,
+        "graphql": "String"
+      },
+      {
+        "name": "_sheet",
+        "datatype": "String",
+        "sample": "Posts",
+        "reserved": true,
+        "graphql": "String"
+      },
+      {
+        "name": "_row",
+        "datatype": "Int",
+        "sample": 2,
+        "reserved": true,
+        "graphql": "Int"
+      },
+      {
+        "name": "_errors",
+        "datatype": "StringList",
+        "sample": [],
+        "reserved": true,
+        "graphql": "[String!]"
+      },
+      {
+        "name": "id",
+        "datatype": "String",
+        "sample": "post-1",
+        "graphql": "String"
+      },
+      {
+        "name": "slug",
+        "datatype": "String",
+        "sample": "hello-world",
+        "graphql": "String"
+      },
+      {
+        "name": "title",
+        "datatype": "String",
+        "sample": "Hello World",
+        "graphql": "String"
+      },
+      {
+        "name": "content",
+        "datatype": "GoogleDoc",
+        "sample": {
+          "_docid": "1XAuHv67nEg8G5EoMquU8OvwXVJfEJOy_MVNtirlCHX0",
+          "_url": "https://docs.google.com/document/d/1XAuHv67nEg8G5EoMquU8OvwXVJfEJOy_MVNtirlCHX0/edit#",
+          "description": "Hello World",
+          "body": "This is my first post on my new fake blog! How exciting!\n\nI'm sure I'll write a lot more interesting things in the future.\n\nOh, and here's a great quote from this Wikipedia on salted duck eggs.\n\nA salted duck egg is a Chinese preserved food product made by soaking duck eggs in brine, or packing each egg in damp, salted charcoal. In Asian supermarkets, these eggs are sometimes sold covered in a thick layer of salted charcoal paste. The eggs may also be sold with the salted paste removed, wrapped in plastic, and vacuum packed. From the salt curing process, the salted duck eggs have a briny aroma, a gelatin-like egg white and a firm-textured, round yolk that is bright orange-red in color."
+        },
+        "fields": [
+          {
+            "name": "_docid",
+            "datatype": "String",
+            "sample": "1XAuHv67nEg8G5EoMquU8OvwXVJfEJOy_MVNtirlCHX0",
+            "reserved": true
+          },
+          {
+            "name": "_url",
+            "datatype": "String",
+            "sample": "https://docs.google.com/document/d/1XAuHv67nEg8G5EoMquU8OvwXVJfEJOy_MVNtirlCHX0/edit#",
+            "reserved": true
+          },
+          {
+            "name": "description",
+            "datatype": "String",
+            "sample": "Hello World",
+            "reserved": false
+          },
+          {
+            "name": "body",
+            "datatype": "String",
+            "sample": "This is my first post on my new fake blog! How exciting!\n\nI'm sure I'll write a lot more interesting things in the future.\n\nOh, and here's a great quote from this Wikipedia on salted duck eggs.\n\nA salted duck egg is a Chinese preserved food product made by soaking duck eggs in brine, or packing each egg in damp, salted charcoal. In Asian supermarkets, these eggs are sometimes sold covered in a thick layer of salted charcoal paste. The eggs may also be sold with the salted paste removed, wrapped in plastic, and vacuum packed. From the salt curing process, the salted duck eggs have a briny aroma, a gelatin-like egg white and a firm-textured, round yolk that is bright orange-red in color.",
+            "reserved": false
+          }
+        ],
+        "graphql": "Unknown"
+      },
+      {
+        "name": "author_names",
+        "datatype": "StringList",
+        "sample": ["Jane Doe"],
+        "graphql": "[String!]"
+      },
+      {
+        "name": "author_emails",
+        "datatype": "StringList",
+        "sample": ["jane.doe@supersheets.io"],
+        "graphql": "[String!]"
+      },
+      {
+        "name": "published",
+        "datatype": "Boolean",
+        "sample": true,
+        "graphql": "Boolean"
+      },
+      {
+        "name": "published_at",
+        "datatype": "Datetime",
+        "sample": "2015-05-01T22:12:03.000Z",
+        "graphql": "String"
+      }
+    ],
+    "docs": {
+      "content": {
+        "name": "content",
+        "fields": [
+          {
+            "name": "_docid",
+            "datatype": "String",
+            "sample": "1XAuHv67nEg8G5EoMquU8OvwXVJfEJOy_MVNtirlCHX0",
+            "reserved": true
+          },
+          {
+            "name": "_url",
+            "datatype": "String",
+            "sample": "https://docs.google.com/document/d/1XAuHv67nEg8G5EoMquU8OvwXVJfEJOy_MVNtirlCHX0/edit#",
+            "reserved": true
+          },
+          {
+            "name": "description",
+            "datatype": "String",
+            "sample": "Hello World",
+            "reserved": false
+          },
+          {
+            "name": "body",
+            "datatype": "Markdown",
+            "sample": "This is my first post on my new fake blog! How exciting!\n\nI'm sure I'll write a lot more interesting things in the future.\n\nOh, and here's a great quote from this Wikipedia on salted duck eggs.\n\nA salted duck egg is a Chinese preserved food product made by soaking duck eggs in brine, or packing each egg in damp, salted charcoal. In Asian supermarkets, these eggs are sometimes sold covered in a thick layer of salted charcoal paste. The eggs may also be sold with the salted paste removed, wrapped in plastic, and vacuum packed. From the salt curing process, the salted duck eggs have a briny aroma, a gelatin-like egg white and a firm-textured, round yolk that is bright orange-red in color.",
+            "reserved": false
+          }
+        ]
+      }
+    },
+    "excluded": []
+  },
+  "ncols": 8,
+  "nrows": 3
+}
