@@ -13,7 +13,6 @@
           <li :class="menuClass('Fields')"><a v-on:click="selectmenu('Fields')">Datatypes</a></li>
           <li :class="menuClass('History')" v-show="false"><a v-on:click="selectmenu('History')">History</a></li>
           <li :class="menuClass('Settings')"><a v-on:click="selectmenu('Settings')">Settings</a></li>
-          <li :class="menuClass('Start')"><a v-on:click="selectmenu('Start')">Getting Started</a></li>
         </ul>
       </div>
     </div>
@@ -21,7 +20,6 @@
     <br/>
     <div class="container">
       <SheetSchema v-show="isSelected('Schema')" v-if="loaded"></SheetSchema>
-      <SheetStart v-show="isSelected('Start')" v-if="loaded"></SheetStart>
       <Overview v-show="isSelected('Fields')" v-if="loaded"></Overview>
       <SheetSettings v-show="isSelected('Settings')" v-if="loaded"></SheetSettings>
     </div>
@@ -32,7 +30,6 @@
 import { mapState, mapMutations, mapActions } from 'vuex'
 import SheetHeader from '@/components/SheetHeader.vue'
 import SheetSchema from '@/components/SheetSchema.vue'
-import SheetStart from '@/components/SheetStart.vue'
 import SheetStats from '@/components/SheetStats.vue'
 import SheetSettings from '@/components/SheetSettings.vue'
 import Overview from '@/components/Overview.vue'
@@ -45,7 +42,6 @@ export default {
   components: {
     SheetHeader,
     SheetSchema,
-    SheetStart,
     Overview,
     SheetStats,
     SheetSettings

@@ -12,7 +12,20 @@
     <div class="navbar-menu">
       <div class="navbar-start">
         <div class="navbar-item" v-if="user">
-          <router-link to="/">Sheets</router-link>
+          <router-link to="/">Your Supersheets</router-link>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            Docs
+          </a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://docs.google.com/document/d/18ElzHxn9DgITDM55Rpz5NGEWpbM8oyKIBswkkrr0jfM/edit#" target="_blank">
+              Creating a Supersheet
+            </a>
+            <a class="navbar-item" href="https://docs.google.com/document/d/1MwXzWWKM4gSm1VELfQWFifiwHGgO8Ca3mxmg6T5GIhU/edit#" target="_blank">
+              Querying a Supersheet
+            </a>
+          </div>
         </div>
       </div>
       
