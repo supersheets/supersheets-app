@@ -129,7 +129,7 @@ export default {
       return `${d.format('llll')}`
     },
     endpoint: function () {
-      if (!this.sheet || !this.sheet.id) return "?"
+      if (!this.sheet || !this.sheet.id) return "..."
       return `${process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT}/${this.sheet.id}/graphql`
     },
     playgroundurl: function() {

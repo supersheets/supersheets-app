@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 
 import { 
+  makeSchemaRowsEditable,
   convertSpreadsheetToSchemaTables,
   convertSheetToSchemaRows,
   excerptString,
@@ -9,6 +10,17 @@ import {
   convertEmbeddedDocToSchemaRows,
   convertToGraphQLType
 } from '@/lib/schemautil.js'
+
+describe('makeSchemaRowsEditable', async () => {
+  it ('should convert embedded google doc types correctly', async () => {
+    let rows = [ { name: "published_at", fullname: "content___published_at", datatype: "String", embedded: true  } ]
+    let datatypes = { "content.published_at": "Datetime" }
+    let editable = makeSchemaRowsEditable(rows, datatypes)
+    expect(editable).toEqual([ { 
+      configdatatype: "Datetime" , name: "published_at", fullname: "content___published_at", datatype: "String", embedded: true 
+    } ])
+  })
+})
 
 describe('convertSpreadsheetToSchemaTables', async () => {
   it ('should convert an entire spreadsheet into its sheet schemas', async () => {

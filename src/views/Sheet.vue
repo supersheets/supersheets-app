@@ -10,9 +10,9 @@
       <div class="tabs is-boxed">
         <ul>
           <li :class="menuClass('Schema')"><a v-on:click="selectmenu('Schema')">Schema</a></li>
-          <li :class="menuClass('Fields')"><a v-on:click="selectmenu('Fields')">Datatypes</a></li>
+          <li :class="menuClass('Datatypes')"><a v-on:click="selectmenu('Datatypes')">Data Types</a></li>
           <li :class="menuClass('History')" v-show="false"><a v-on:click="selectmenu('History')">History</a></li>
-          <li :class="menuClass('Settings')"><a v-on:click="selectmenu('Settings')">Settings</a></li>
+          <li :class="menuClass('Advanced')"><a v-on:click="selectmenu('Advanced')">Advanced</a></li>
         </ul>
       </div>
     </div>
@@ -20,8 +20,8 @@
     <br/>
     <div class="container">
       <SheetSchema v-show="isSelected('Schema')" v-if="loaded"></SheetSchema>
-      <Overview v-show="isSelected('Fields')" v-if="loaded"></Overview>
-      <SheetSettings v-show="isSelected('Settings')" v-if="loaded"></SheetSettings>
+      <SheetDatatypes v-show="isSelected('Datatypes')" v-if="loaded"></SheetDatatypes>
+      <SheetSettings v-show="isSelected('Advanced')" v-if="loaded"></SheetSettings>
     </div>
   </section>
 </div>
@@ -30,9 +30,9 @@
 import { mapState, mapMutations, mapActions } from 'vuex'
 import SheetHeader from '@/components/SheetHeader.vue'
 import SheetSchema from '@/components/SheetSchema.vue'
-import SheetStats from '@/components/SheetStats.vue'
+import SheetDatatypes from '@/components/SheetDatatypes.vue'
+// import SheetStats from '@/components/SheetStats.vue'
 import SheetSettings from '@/components/SheetSettings.vue'
-import Overview from '@/components/Overview.vue'
 
 const moment = require('moment')
 
@@ -42,8 +42,8 @@ export default {
   components: {
     SheetHeader,
     SheetSchema,
-    Overview,
-    SheetStats,
+    SheetDatatypes,
+    // SheetStats,
     SheetSettings
   },
   data: () => {

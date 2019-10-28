@@ -1,7 +1,7 @@
 <template>
 <div class="schema">
 <div class="columns">
-  <div class="column is-3">
+  <div class="column is-2">
     <aside class="menu" v-if="schema">
       <p class="menu-label">
         Sheets
@@ -93,6 +93,9 @@
         <br/>
       </div>
     </div>
+  </div>
+  <div class="column is-3">
+
   </div>
 </div>
 </div>

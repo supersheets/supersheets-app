@@ -12,6 +12,35 @@ const capitalize = (s) => {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
+// TODO: Handle backward compat with old sheets that don't have schemas
+// initOldColumns() {
+//   let names = { }
+//   let columns = [ ]
+//   for (let sheet of this.sheet.sheets) {
+//     for (let name of sheet.columns) {
+//       if (!names[name]) {
+//         columns.push({
+//           name: name,
+//           datatype: "String",
+//           configdatatype: "String"
+//         })
+//         names[name] = true
+//       }
+//     }
+//   }
+//   console.log('initOldColumns', columns)
+//   return columns
+// }
+
+export function makeSchemaRowsEditable(rows, datatypes) {
+  let copy = JSON.parse(JSON.stringify(rows))
+  datatypes = datatypes || { }
+  copy.forEach(row => {
+    row.configdatatype = datatypes[row.fullname.replace('___', '.')] || row.datatype || "String" 
+  })
+  return copy
+}
+
 export function convertSpreadsheetToSchemaTables(spreadsheet) {
   let sheetschemas = [ {
     title: "Rows",
