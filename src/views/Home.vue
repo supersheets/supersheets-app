@@ -2,9 +2,27 @@
   <div class="sheet">
     <section class="section header">
       <div class="container">
-        <h1 class="title is-2">Supersheets</h1>
         <div class="columns">
           <div class="column">
+
+            <nav class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <h1 class="title is-2">My Supersheets</h1>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <a :class="{ 'button':true, 'is-medium':true, 'is-danger':true, 'is-loading':loading }" v-on:click="showPicker" :disabled="!pickerloaded">
+                    <span class="icon is-medium" style="margin-right:.4rem;">
+                        <i class="fas fa-table"></i>
+                      </span>
+                      New Supersheet
+                    </a>
+                </div>
+              </div>
+            </nav>
+
             <p v-show="loadingsheets">Loading ...</p>
             <div class="card" v-for="sheet in sheets">
               <div class="card-content">  
@@ -27,8 +45,8 @@
               </div>
             </div>
           </div>
-          <div class="column is-4">
-            <div class="field">
+          <div class="column is-3">
+            <div class="field" v-if="false">
               <div class="control">
                 <a :class="{ 'button':true, 'is-medium':true, 'is-danger':true, 'is-loading':loading }" v-on:click="showPicker" :disabled="!pickerloaded">
                  <span class="icon is-medium" style="margin-right:.4rem;">

@@ -3,16 +3,16 @@
   <div class="container">
     <div class="navbar-brand">
       <router-link class="navbar-item logo" to="/" v-show="user">Supersheets</router-link>
-      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <a role="button" v-on:click="toggleBurger" :class="{ 'navbar-burger':true, 'burger':true, 'is-active':burger }" aria-label="menu" aria-expanded="false" data-target="navbarMain" >
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
       </a>
     </div>
-    <div class="navbar-menu">
+    <div id="navbarMain" :class="{'navbar-menu':true, 'is-active':burger}">
       <div class="navbar-start">
         <div class="navbar-item" v-if="user">
-          <router-link to="/">Your Supersheets</router-link>
+          <router-link to="/">My Supersheets</router-link>
         </div>
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
@@ -79,6 +79,7 @@ export default {
   },
   data: () => {
     return { 
+      burger: false
     }
   },
   methods: {
@@ -96,6 +97,9 @@ export default {
       console.log('logout')
       await this.logout()
       this.$router.push('/')
+    },
+    toggleBurger() {
+      this.burger = !this.burger
     }
   }
 }

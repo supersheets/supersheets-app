@@ -51,7 +51,7 @@ describe('convertSheetSchemaToRows', () => {
       name: 'content',
       fullname: 'content',
       datatype: 'GoogleDoc',
-      graphql: 'PostContentDoc',
+      graphql: 'PostsContentDoc',
       embedded: false,
       reserved: false,
       sample: "{\"_docid\":\"1XAuHv67nEg8G5EoMq..."  
@@ -131,22 +131,22 @@ describe('generateGraphQLNames', () => {
   let s = generateGraphQLNames(sheet)
   expect(s).toEqual({ 
     name: 'Posts',
-    type: 'Post',
+    type: 'Posts',
     docs: { 
       "content": { 
         name: 'content',
-        type: 'PostContentDoc',
-        input: 'PostContentDocFilterInput',
-        sort: 'PostContentDocSortInput'
+        type: 'PostsContentDoc',
+        input: 'PostsContentDocFilterInput',
+        sort: 'PostsContentDocSortInput'
       } 
     },
-    connection: 'PostConnection',
-    enumfields: 'PostFieldsEnum',
-    edge: 'PostEdge',
-    input: 'PostFilterInput',
+    connection: 'PostsConnection',
+    enumfields: 'PostsFieldsEnum',
+    edge: 'PostsEdge',
+    input: 'PostsFilterInput',
     find: 'findPosts',
-    findOne: 'findOnePost',
-    sort: 'PostSortInput'
+    findOne: 'findOnePosts',
+    sort: 'PostsSortInput'
   })
 })
 
