@@ -159,11 +159,9 @@ export default new Vuex.Store({
       return state.sheet
     },
     async startLoad({dispatch, commit, state, getters}, { id }) {
-      // let params = { idptoken: getters.idptoken }
       commit('updateLoadStatus', { message: "Loading ..." })
-      // let metadata = (await state.axios.post(`${id}`, { params })).data
-      // commit('updateLoadStatus', { message: "Loaded metadata" })
-      let status = (await state.axios.post(`${id}/load`)).data
+      let body = { token: getters.idptoken }
+      let status = (await state.axios.post(`${id}/load`, body)).data
       commit('updateLoadStatus', { message: `Load started ...` })
       return status
     },

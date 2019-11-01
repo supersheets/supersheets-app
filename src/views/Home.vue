@@ -13,16 +13,21 @@
               </div>
               <div class="level-right">
                 <div class="level-item">
-                  <a :class="{ 'button':true, 'is-medium':true, 'is-danger':true, 'is-loading':loading }" v-on:click="showPicker" :disabled="!pickerloaded">
-                    <span class="icon is-medium" style="margin-right:.4rem;">
-                        <i class="fas fa-table"></i>
-                      </span>
-                      New Supersheet
-                    </a>
+                  <div class="field">
+                    <div class="control">
+                      <a :class="{ 'button':true, 'is-danger':true, 'is-loading':loading }" v-on:click="showPicker" :disabled="!pickerloaded">
+                        <span class="icon is-medium" style="margin-right:.4rem;">
+                          <i class="fas fa-table"></i>
+                        </span>
+                        New Supersheet
+                      </a>
+                    </div>
+                    <p class="help" v-show="!loading">&nbsp;</p>
+                    <p class="help" v-show="loading">{{ message }}</p>
+                  </div>
                 </div>
               </div>
             </nav>
-
             <p v-show="loadingsheets">Loading ...</p>
             <div class="card" v-for="sheet in sheets">
               <div class="card-content">  
