@@ -36,7 +36,8 @@ export function makeSchemaRowsEditable(rows, datatypes) {
   let copy = JSON.parse(JSON.stringify(rows))
   datatypes = datatypes || { }
   copy.forEach(row => {
-    row.configdatatype = datatypes[row.fullname.replace('___', '.')] || row.datatype || "String" 
+    row.fullname = row.fullname.replace('___', '.')
+    row.configdatatype = datatypes[row.fullname] || row.datatype || "String" 
   })
   return copy
 }

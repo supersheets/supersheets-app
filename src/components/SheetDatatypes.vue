@@ -187,7 +187,7 @@ function convertToDatatypes(columns) {
   let datatypes = { }
   for (let col of columns.filter(col => !col.reserved)) {
     if (col.embedded) {
-      datatypes[`${col.embedded}.${col.name}`] = col.configdatatype
+      datatypes[col.fullname] = col.configdatatype
     } else {
       datatypes[col.name] = col.configdatatype
     }
