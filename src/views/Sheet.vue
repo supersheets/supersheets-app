@@ -10,7 +10,7 @@
       <div class="tabs is-boxed">
         <ul>
           <li :class="menuClass('Schema')"><a v-on:click="selectmenu('Schema')">Schema</a></li>
-          <li :class="menuClass('Datatypes')"><a v-on:click="selectmenu('Datatypes')">Data Types</a></li>
+          <li :class="menuClass('Datatypes')" v-if="false"><a v-on:click="selectmenu('Datatypes')">Data Types</a></li>
           <li :class="menuClass('History')" v-show="false"><a v-on:click="selectmenu('History')">History</a></li>
           <li :class="menuClass('Advanced')"><a v-on:click="selectmenu('Advanced')">Advanced</a></li>
         </ul>
@@ -20,7 +20,7 @@
     <br/>
     <div class="container">
       <SheetSchema v-show="isSelected('Schema')" v-if="loaded"></SheetSchema>
-      <SheetDatatypes v-show="isSelected('Datatypes')" v-if="loaded"></SheetDatatypes>
+      <SheetDatatypes v-show="isSelected('Datatypes')" v-if="false"></SheetDatatypes>
       <SheetSettings v-show="isSelected('Advanced')" v-if="loaded"></SheetSettings>
     </div>
   </section>

@@ -32,28 +32,31 @@ const capitalize = (s) => {
 //   return columns
 // }
 
-export function makeSchemaRowsEditable(rows, datatypes) {
+export function makeSchemaRowsEditable(rows, datatypes, relationships) {
   let copy = JSON.parse(JSON.stringify(rows))
   datatypes = datatypes || { }
   copy.forEach(row => {
     row.fullname = row.fullname.replace('___', '.')
     row.configdatatype = datatypes[row.fullname] || row.datatype || "String" 
+    if (relationships[row.name]) {
+      row.relationship = relationships[row.name]
+    }
   })
   return copy
 }
 
 export function convertSpreadsheetToSchemaTables(spreadsheet) {
-  let sheetschemas = [ {
-    title: "Rows",
-    schema: spreadsheet.schema,
-    names: { find: 'find', findOne: 'findOne' }
-  } ]
-  sheetschemas = sheetschemas.concat(spreadsheet.sheets.map(s => { 
+  // let sheetschemas = [ {
+  //   title: "Rows",
+  //   schema: spreadsheet.schema,
+  //   names: { find: 'find', findOne: 'findOne' }
+  // } ]
+  let sheetschemas = spreadsheet.sheets.map(s => { 
     return {
       title: s.title,
       schema: s.schema
     }
-  }))
+  })
   sheetschemas.forEach(sheet => {
     sheet.names = Object.assign(generateGraphQLNames(sheet), sheet.names || { })
   })
@@ -69,15 +72,20 @@ export function convertSpreadsheetToSchemaTables(spreadsheet) {
 export function convertSheetToSchemaRows({ title, schema, names }) {
   let rows = [ ]
   schema.columns.forEach(col => {
-    rows.push({
+    let row = {
       name: col.name,
       fullname: col.name,
       datatype: col.datatype,
       graphql: convertToGraphQLType(col, { names }),
       embedded: false,
       reserved: col.reserved || false,
+      relationship: col.relationship && true || false,
       sample: col.sample
-    })
+    }
+    if (row.relationship && schema.relationships && schema.relationships[row.name]) {
+      row.relationship = schema.relationships[row.name]
+    }
+    rows.push(row)
     if (col.datatype == "GoogleDoc") {
       let doc = schema.docs && schema.docs[col.name]
       if (doc) {
@@ -114,6 +122,8 @@ function formatSampleValue({ datatype, graphql, sample }) {
     if (sample && typeof sample == "object") {
       return excerptString(JSON.stringify(sample), 32)
     } 
+  } else if (datatype == "ImageUrl" && (typeof sample == "object")) {
+    return sample["_original"]
   }
   return sample
 }
@@ -141,6 +151,8 @@ export function convertToGraphQLType({ name, datatype }, options) {
       return "[String!]"
     case "GoogleDoc":
       return names.docs[name].type || "Unknown"
+    case "ImageUrl":
+      return "Image"
     default: 
       return "Unknown"
   }

@@ -69,6 +69,7 @@ export default new Vuex.Store({
       state.axios.defaults.headers.common['Authorization'] = `Bearer ${state.user.token}`
     },
     setAccount(state, account) {
+      console.log("ACCOUNT", JSON.stringify(account, null, 2))
       state.account = account
       //state.axios.defaults.headers.common['X-Supersheets-IDP-Authorization'] = `Bearer ${getGoogleIDPTokenFromAccount(state.account)}`
     },
@@ -266,7 +267,7 @@ function parseHashPromise() {
 
 function checkSessionPromise() {
   return new Promise(function(resolve, reject) {
-    webAuth.checkSession({}, function(error, authResult) {
+    webAuth.checkSession({ }, function(error, authResult) {
       if (error) reject(error)
       resolve(authResult)
     })
