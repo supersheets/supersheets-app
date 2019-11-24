@@ -281,13 +281,14 @@ export default {
     editRelationshipAction(remove) {
       console.log('edit relationshp', this.modalcol, remove)
       let schema = this.schemas.find(s => s.title == s.selected)
-      let col = this.schema.rows.find(row => row.name == this.modalcol.name)
+      let col = this.editable.find(row => row.name == this.modalcol.name)
+      //let col = this.schema.rows.find(row => row.name == this.modalcol.name)
       if (remove === false) {
         col.relationship = false
       } else {
         col.relationship = this.modalcol.relationship
       }
-      this.editable = this.initColumns()
+      //this.editable = this.initColumns()
       console.log('col', col)
       this.closeModal()
       this.modalcol = { relationship: { } }
