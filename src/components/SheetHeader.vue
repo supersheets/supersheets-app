@@ -177,7 +177,7 @@ export default {
             } else if (update.status == "FAILURE") {
               this.loading = false
               this.addNotification({
-                message: `${this.loadstatus.error}`,
+                message: `${update.errorMessage || 'Unknown Error'}`,
                 level: "danger"
               })
             }
@@ -189,6 +189,7 @@ export default {
           }
         }, 5 * 1000)
       } catch (err) {
+        console.error(err.response)
         if (err.response) {
           console.log(err.response)
           this.addNotification({
