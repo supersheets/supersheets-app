@@ -66,8 +66,8 @@ export default new Vuex.Store({
   },
   mutations: {
     setGoogleAuth(state, GoogleAuth) {
+      state.GoogleAuth = GoogleAuth
       if (GoogleAuth && GoogleAuth.isSignedIn.get()) {
-        state.GoogleAuth = GoogleAuth
         let user = GoogleAuth.currentUser.get()
         let profile = user.getBasicProfile()
         let auth = user.getAuthResponse()
