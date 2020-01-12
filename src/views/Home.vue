@@ -207,10 +207,13 @@ export default {
     }
   },
   async created() {
-    this.sheets = await this.getSheets()
-    this.sheets.forEach(sheet => sheet.updated_at = moment(sheet.updated_at))
-    this.loadingsheets = false
-
+    try {
+      this.sheets = await this.getSheets()
+      this.sheets.forEach(sheet => sheet.updated_at = moment(sheet.updated_at))
+      this.loadingsheets = false
+    } catch (err) {
+      console.error(err)
+    }
     gapi.load("picker", () => {
       console.log("picker loaded")
       this.pickerloaded = true

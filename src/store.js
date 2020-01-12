@@ -25,8 +25,10 @@ Vue.use(Vuex)
 import { initGoogleOAuth } from './lib/oauth'
 const GOOGLE_BASE_CONFIG = {
   'client_id': process.env.VUE_APP_GOOGLE_CLIENTID,
-  'scope': 'profile email'
+  'scope': GOOGLE_SCOPE,
+  'response_type': 'id_token token'
 }
+const GOOGLE_SCOPE = 'profile email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/spreadsheets'
 
 export default new Vuex.Store({
   state: {
@@ -50,6 +52,12 @@ export default new Vuex.Store({
     isTokenValid: (state, getters) => {
       return state.user && state.user.expiresAt > (Date.now() + 5 * 60 * 1000)
     },
+    idToken: (state, getters) => {
+      return state.user && state.user.token
+    },
+    accessToken: (state, getters) => {
+      return state.user && state.user.access
+    },
     idptoken: (state, getters) => {
       return state.user && state.user.token
     },
@@ -70,7 +78,8 @@ export default new Vuex.Store({
       if (GoogleAuth && GoogleAuth.isSignedIn.get()) {
         let user = GoogleAuth.currentUser.get()
         let profile = user.getBasicProfile()
-        let auth = user.getAuthResponse()
+        let auth = user.getAuthResponse(true) // true will include access_token
+        console.log('auth', auth)
         state.user = {
           email: profile.getEmail(),
           name: profile.getName(),
@@ -78,6 +87,7 @@ export default new Vuex.Store({
           provider: 'google',
           domain: user.getHostedDomain(),
           token: auth.id_token,
+          access: auth.access_token,
           issuedAt: auth.first_issued_at,
           expiresIn: auth.expires_in,
           expiresAt: auth.expires_at,
@@ -139,8 +149,9 @@ export default new Vuex.Store({
       if (state.GoogleAuth) {
         state.GoogleAuth.signIn({
           prompt: 'select_account',
-          scope: 'profile email',
+          scope: GOOGLE_SCOPE,
           ux_mode: 'redirect',
+          response_type: 'id_token token',
           redirect_uri: `${process.env.VUE_APP_DOMAIN}/callback`,
           state: stateData
         })
@@ -251,6 +262,7 @@ export default new Vuex.Store({
     },
     // GOOGLE PICKER ACTIONS
     async showGooglePicker({dispatch, commit, state, getters}, { google, callback }) {
+      console.log('pickertoken', state.user.access)
       let view = new google.picker.DocsView()
       view.setIncludeFolders(true)
       view.setSelectFolderEnabled(false)
@@ -258,7 +270,8 @@ export default new Vuex.Store({
         .addView(google.picker.ViewId.SPREADSHEETS)
         .addView(view)
         .addView(google.picker.ViewId.RECENTLY_PICKED)
-        .setOAuthToken(getters.idptoken)
+        .setOAuthToken(getters.accessToken)
+        .setDeveloperKey(process.env.VUE_APP_GOOGLE_APIKEY)
         .setCallback(callback)
         .build()
       picker.setVisible(true)
