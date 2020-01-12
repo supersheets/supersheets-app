@@ -5,7 +5,32 @@
         <h1 class="title is-2">Account</h1>
         <div class="columns">
           <div class="column">
-            <pre><code>{{ account }}</code></pre>
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-128x128">
+                      <img :src="user.image_url">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-4">{{ user.name }}</p>
+                    <p class="subtitle is-6">{{ user.email }}</p>
+                    <p class="help">Domain: {{ user.domain }}</p>
+                    <p class="help">ID: {{ user.sub }}</p>
+                    <p></p>
+                  </div>
+                </div>
+                <hr/>
+                <div class="content">
+                  <p class="help" style="word-break:break-all;">
+                    {{ user.token }}<br/><br/>
+                    Issued: {{ issuedAt }} ({{ issuedAt.fromNow() }})<br/>
+                    Expires: {{ expiresAt }} ({{ expiresAt.fromNow() }})<br/><br/>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="column is-4">
           </div>
@@ -30,9 +55,14 @@ export default {
   },
   computed: {
     ...mapState([
-      'user',
-      'account'
-    ]),
+      'user'
+    ]),    
+    issuedAt: function() {
+      return moment(this.user.issuedAt)
+    },
+    expiresAt: function() {
+      return moment(this.user.expiresAt)
+    }
   },
   methods: {
     ...mapMutations([

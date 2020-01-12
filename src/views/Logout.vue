@@ -10,7 +10,6 @@ export default {
   name: 'logout',
   async mounted() {
     console.log("Logout View")
-    this.$store.commit('clearUser', null)
     this.$router.push('/')
   }
 }

@@ -35,20 +35,29 @@
         </div>
         <div class="navbar-item" v-if="!user">
           Loading ...
-          <div class="buttons" v-if="false">
+          <div class="buttons">
             <a class="button is-info" v-if="false">
               Sign up
             </a>
-            <a class="button is-info" v-on:click="loginClick">
-              Log in
+            <a class="button is-white is-small" v-on:click="loginClick">
+              Sign in
             </a>
           </div>
         </div>
         <div class="navbar-item has-dropdown is-hoverable" v-if="user">
           <a class="navbar-link">
-            {{ user.email }}
+            <figure class="image is-24x24">
+              <img class="is-rounded" :src="user.image_url">
+            </figure>
           </a>
-          <div class="navbar-dropdown">
+          <div class="navbar-dropdown is-right">
+            <div class="navbar-item help">
+              {{ user.email }}
+            </div>
+            <a class="navbar-item help" v-on:click="switchAccountClick">
+              Switch account
+            </a>
+            <hr class="navbar-divider"/>
             <router-link class="navbar-item" to="/account">Account</router-link>
             <a class="navbar-item" v-on:click="logoutClick">
               Log out
@@ -97,6 +106,9 @@ export default {
       console.log('logout')
       await this.logout()
       this.$router.push('/')
+    },
+    async switchAccountClick() {
+      await this.login({ returnTo: '/' })
     },
     toggleBurger() {
       this.burger = !this.burger

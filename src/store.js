@@ -4,26 +4,34 @@ import Vuex from 'vuex'
 const axios = require('axios')
 const uuidV4 = require('uuid/v4')
 const { convertSpreadsheetToSchemaTables } = require('@/lib/schemautil.js') 
+const wait = ms => new Promise((r, j)=>setTimeout(r, ms))
 
 Vue.use(Vuex)
 
 // Auth0 Configuration
-import auth0 from 'auth0-js'
+// import auth0 from 'auth0-js'
 
-const config = {
-  domain: process.env.VUE_APP_AUTH0_DOMAIN,
-  clientID: process.env.VUE_APP_AUTH0_CLIENTID,
-  redirectUri: `${process.env.VUE_APP_DOMAIN}/callback`,
-  audience: process.env.VUE_APP_AUTH0_AUDIENCE, 
-  responseType: 'token id_token',
-  scope: 'openid profile email'
+// const config = {
+//   domain: process.env.VUE_APP_AUTH0_DOMAIN,
+//   clientID: process.env.VUE_APP_AUTH0_CLIENTID,
+//   redirectUri: `${process.env.VUE_APP_DOMAIN}/callback`,
+//   audience: process.env.VUE_APP_AUTH0_AUDIENCE, 
+//   responseType: 'token id_token',
+//   scope: 'openid profile email'
+// }
+// const webAuth = new auth0.WebAuth(config)
+
+// Google OAuth Configuration
+import { initGoogleOAuth } from './lib/oauth'
+const GOOGLE_BASE_CONFIG = {
+  'client_id': process.env.VUE_APP_GOOGLE_CLIENTID,
+  'scope': 'profile email'
 }
-const webAuth = new auth0.WebAuth(config)
 
 export default new Vuex.Store({
   state: {
+    GoogleAuth: null,
     user: null,
-    account: null,
     sheet: { title: "Loading ..." },
     cache: null,
     axios: axios.create({
@@ -39,9 +47,11 @@ export default new Vuex.Store({
     isAuthenticated: (state, getters) => {
       return state.user
     },
+    isTokenValid: (state, getters) => {
+      return state.user && state.user.expiresAt > (Date.now() + 5 * 60 * 1000)
+    },
     idptoken: (state, getters) => {
-      if (!state.account) return null
-      return getGoogleIDPTokenFromAccount(state.account)
+      return state.user && state.user.token
     },
     supersheetsbaseurl: (state, getter) => {
       return process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT
@@ -55,23 +65,33 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    setUser(state, auth) {
-      state.user = {
-        email: auth.idTokenPayload.email,
-        name: auth.idTokenPayload.name,
-        sub: auth.idTokenPayload.sub,
-        provider: auth.idTokenPayload.sub.split('|')[0],
-        domain: calcUserDomain(auth.idTokenPayload),
-        token: auth.idToken, // so backend gets user info like email, 
-        expiresIn: auth.expiresIn,
-        expiresAt: calcExpiresAt(new Date(), auth.expiresIn),
+    setGoogleAuth(state, GoogleAuth) {
+      if (GoogleAuth && GoogleAuth.isSignedIn.get()) {
+        state.GoogleAuth = GoogleAuth
+        let user = GoogleAuth.currentUser.get()
+        let profile = user.getBasicProfile()
+        let auth = user.getAuthResponse()
+        state.user = {
+          email: profile.getEmail(),
+          name: profile.getName(),
+          sub: profile.getId(),
+          provider: 'google',
+          domain: user.getHostedDomain(),
+          token: auth.id_token,
+          issuedAt: auth.first_issued_at,
+          expiresIn: auth.expires_in,
+          expiresAt: auth.expires_at,
+          family_name: profile.getFamilyName(),
+          given_name: profile.getGivenName(),
+          image_url: profile.getImageUrl(),
+        }
+        state.axios.defaults.headers.common['Authorization'] = `Bearer ${state.user.token}`
       }
-      state.axios.defaults.headers.common['Authorization'] = `Bearer ${state.user.token}`
     },
-    setAccount(state, account) {
-      console.log("ACCOUNT", JSON.stringify(account, null, 2))
-      state.account = account
-      //state.axios.defaults.headers.common['X-Supersheets-IDP-Authorization'] = `Bearer ${getGoogleIDPTokenFromAccount(state.account)}`
+    logoutUser(state) {
+      state.user = null 
+      delete state.axios.defaults.headers.common['Authorization']
+      return
     },
     setSheet(state, sheet) {
       state.sheet = sheet
@@ -108,39 +128,46 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    // AUTHENTICATION ACTIONS
+    // GOOGLE OAUTH
+    async initGoogleOAuth({dispatch, commit, state, getters}, { gapi, options }) {
+      options = Object.assign(options || { }, GOOGLE_BASE_CONFIG)
+      let GoogleAuth = await initGoogleOAuth(gapi, options)
+      commit('setGoogleAuth', GoogleAuth)
+    },
     async login({dispatch, commit, state, getters}, { returnTo }) {
-      var stateData = btoa(JSON.stringify({ returnTo: returnTo || '/sheets' }))
-      webAuth.authorize({ state: stateData })
+      let stateData = btoa(JSON.stringify({ returnTo: returnTo || '/sheets' }))
+      if (state.GoogleAuth) {
+        state.GoogleAuth.signIn({
+          prompt: 'select_account',
+          scope: 'profile email',
+          ux_mode: 'redirect',
+          redirect_uri: `${process.env.VUE_APP_DOMAIN}/callback`,
+          state: stateData
+        })
+      }
     },
     async logout({dispatch, commit, state, getters}, params) {
-      //commit('clearAuth')
-      // I think we need to explicitly state this otherwise Auth0 doesn't know which
-      // Logout url to use when there are multiple allowed.
-      var returnTo = `${process.env.VUE_APP_DOMAIN}/logout`
-      webAuth.logout({ returnTo })
+      console.log(state.GoogleAuth)
+      await state.GoogleAuth.signOut()
+      commit('logoutUser')
+      return true
     },
-    async handleAuthentication({dispatch, commit, state, getters}) {
-      console.log('handleAuthentication', authResult)
-      var authResult = await parseHashPromise()
-      commit('setUser', authResult)
-      await dispatch('getAccountInfo')
-      var stateInfo = authResult.state && JSON.parse(atob(authResult.state)) 
-      var returnTo = stateInfo && stateInfo.returnTo || '/sheets'
+    async handleAuthentication({dispatch, commit, state, getters}, { params }) {
+      while (!state.user) {
+        await wait(250)
+        console.log('wait')
+      }
+      let stateData = (new URLSearchParams(params)).get('state')
+      let { returnTo } = stateData && JSON.parse(atob(stateData)) || { returnTo: '/sheets' }
       return { user: state.user, returnTo }
     },
     async checkSession({dispatch, commit, state, getters}, force) {
-      var authResult = await checkSessionPromise()
-      console.log("checkSession", authResult)
-      if (authResult) {
-        commit('setUser', authResult)
-        await dispatch('getAccountInfo')
-      }
-    },
-    async getAccountInfo({dispatch, commit, state, getters}) {
-      let account = (await state.axios.get(`oauth/idp`)).data
-      if (account) {
-        commit('setAccount', account)
+      if (force || !getters.isTokenValid()) {
+        let reload = await state.GoogleAuth.currentUser.get().reloadAuthResponse()
+        console.log('reload', reload)
+        commit('setGoogleAuth', state.GoogleAuth)
+      } else {
+        console.log('token still valid')
       }
     },
     // SHEET ACTIONS
@@ -175,14 +202,6 @@ export default new Vuex.Store({
       await dispatch('deleteCache', { id })
       await dispatch('getSheet', { id })
     },
-    // async reloadSheet({dispatch, commit, state, getters}, { id }) {
-    //   let params = { idptoken: getters.idptoken }
-    //   await state.axios.get(`${id}/meta`, { params })
-    //   let sheet = (await state.axios.get(`${id}/load`, { params })).data
-    //   commit('setSheet', sheet)
-    //   let deleteCache = await dispatch('deleteCache', { id })
-    //   return { sheet: state.sheet, deleteCache }
-    // },
     async deleteSheet({dispatch, commit, state, getters}, { id }) {
       let res = (await state.axios.delete(`${id}`)).data
       commit('setSheet', { title: "Loading ..." })
@@ -247,34 +266,3 @@ export default new Vuex.Store({
   }
 })
 
-function calcUserDomain(user) {
-  return "goalbookapp.com"
-}
-
-function calcExpiresAt(t, expiresInSeconds) {
-  var ms = t.getTime() + (expiresInSeconds*1000)
-  return new Date(ms)
-}
-
-function parseHashPromise() {
-  return new Promise(function(resolve, reject) {  
-    webAuth.parseHash(function(err, authResult) {
-      if (err) reject(err)
-      resolve(authResult)
-    })  
-  })
-}
-
-function checkSessionPromise() {
-  return new Promise(function(resolve, reject) {
-    webAuth.checkSession({ }, function(error, authResult) {
-      if (error) reject(error)
-      resolve(authResult)
-    })
-  })
-}
-
-function getGoogleIDPTokenFromAccount(account) {
-  let identity = account.identities.find(idp => idp.provider == "google-oauth2")
-  return identity && identity.access_token || null
-}

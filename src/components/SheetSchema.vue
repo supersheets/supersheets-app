@@ -154,7 +154,7 @@
             </select>
           </div>
         </div>
-        <p class="help">{{ modalcol.relationship.field && selectedfields.find(r => r.name == modalcol.relationship.field).sample   }}</p>
+        <p class="help">{{ modalcol.relationship.field && selectedfields.find(r => r.name == modalcol.relationship.field) && selectedfields.find(r => r.name == modalcol.relationship.field).sample   }}</p>
       </div>
       <div class="field">
         <label class="label">Operator</label>
