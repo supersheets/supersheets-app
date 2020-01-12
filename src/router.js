@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Auth from './views/Auth.vue'
-import OAuthCallback from './views/OAuthCallback.vue'
 import Home from './views/Home.vue'
 import Account from './views/Account.vue'
 import Sheet from './views/Sheet.vue'
@@ -15,16 +13,6 @@ export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
-    {
-      path: '/auth',
-      name: 'auth',
-      component: Auth
-    },
-    {
-      path: '/oauth',
-      name: 'oauth',
-      component: OAuthCallback
-    },
     {
       path: '/callback',
       name: 'callback',
