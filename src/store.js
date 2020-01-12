@@ -8,19 +8,6 @@ const wait = ms => new Promise((r, j)=>setTimeout(r, ms))
 
 Vue.use(Vuex)
 
-// Auth0 Configuration
-// import auth0 from 'auth0-js'
-
-// const config = {
-//   domain: process.env.VUE_APP_AUTH0_DOMAIN,
-//   clientID: process.env.VUE_APP_AUTH0_CLIENTID,
-//   redirectUri: `${process.env.VUE_APP_DOMAIN}/callback`,
-//   audience: process.env.VUE_APP_AUTH0_AUDIENCE, 
-//   responseType: 'token id_token',
-//   scope: 'openid profile email'
-// }
-// const webAuth = new auth0.WebAuth(config)
-
 // Google OAuth Configuration
 import { initGoogleOAuth } from './lib/oauth'
 const GOOGLE_BASE_CONFIG = {
@@ -173,7 +160,7 @@ export default new Vuex.Store({
       return { user: state.user, returnTo }
     },
     async checkSession({dispatch, commit, state, getters}, force) {
-      if (force || !getters.isTokenValid()) {
+      if (force || !getters.isTokenValid) {
         let reload = await state.GoogleAuth.currentUser.get().reloadAuthResponse()
         console.log('reload', reload)
         commit('setGoogleAuth', state.GoogleAuth)
@@ -278,4 +265,3 @@ export default new Vuex.Store({
     }
   }
 })
-

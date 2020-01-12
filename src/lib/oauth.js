@@ -17,12 +17,12 @@ export async function load(gapi) {
 // returns a promise which resolves to a GoogleAuth object
 export async function init(gapi, options) {
   let GoogleAuth = gapi.auth2.init(options)
-  GoogleAuth.isSignedIn.listen(updateSigninStatus)
+  // GoogleAuth.isSignedIn.listen(updateSigninStatus)
   return new Promise((resolve, reject) => {
     GoogleAuth.then(resolve, reject)
   })
 }
 
-function updateSigninStatus(isSignedIn) {
-  console.log('updateSigninStatus', isSignedIn)
-}
+// function updateSigninStatus(isSignedIn) {
+//   console.log('updateSigninStatus', isSignedIn)
+// }

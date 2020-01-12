@@ -4,7 +4,6 @@ import router from './router'
 import store from './store'
 
 // Third party dependencies
-import auth0 from 'auth0-js'
 import 'bulma/css/bulma.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 import Prism from 'vue-prismjs'
