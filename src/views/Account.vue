@@ -24,7 +24,10 @@
                 <hr/>
                 <div class="content">
                   <p class="help" style="word-break:break-all;">
+                    <b>ID Token</b><br/>
                     {{ user.token }}<br/><br/>
+                    <b>Access Token</b><br/>
+                    {{ user.access }}<br/><br/>
                     Issued: {{ issuedAt }} ({{ issuedAt.fromNow() }})<br/>
                     Expires: {{ expiresAt }} ({{ expiresAt.fromNow() }})<br/><br/>
                   </p>
