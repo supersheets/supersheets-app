@@ -45,9 +45,9 @@ export default new Vuex.Store({
     accessToken: (state, getters) => {
       return state.user && state.user.access
     },
-    idptoken: (state, getters) => {
-      return state.user && state.user.token
-    },
+    // idptoken: (state, getters) => {
+    //   return state.user && state.user.token
+    // },
     supersheetsbaseurl: (state, getter) => {
       return process.env.VUE_APP_SUPERSHEETSIO_ENDPOINT
     },
@@ -186,7 +186,7 @@ export default new Vuex.Store({
     },
     async startLoad({dispatch, commit, state, getters}, { id }) {
       commit('updateLoadStatus', { message: "Loading ..." })
-      let body = { token: getters.idptoken }
+      let body = { token: getters.accessToken }
       let status = (await state.axios.post(`${id}/load`, body)).data
       commit('updateLoadStatus', { message: `Load started ...` })
       return status

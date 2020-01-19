@@ -121,7 +121,6 @@ export default {
       'loadstatus'
     ]),
     ...mapGetters([
-      'idptoken'
     ]),
     docid: function() {
       return this.pickedid || this.url && docidRegex.exec(this.url)[1] || ''
