@@ -16,7 +16,10 @@ export default new Router({
     {
       path: '/callback',
       name: 'callback',
-      component: Callback
+      component: Callback,
+      props: (route) => {
+        return { state: decodeState(route) }
+      }
     },
     {
       path: '/logout',
@@ -28,39 +31,40 @@ export default new Router({
       name: 'home',
       props: true,
       component: Home,
-      beforeEnter: (to, from, next) => {
-        if (store.getters['isAuthenticated']) {
-          next()
-        } else {
-          store.dispatch('login', { returnTo: to.path })
-        }
-      }
+      beforeEnter: checkAuthentication
     },
     {
       path: '/sheets/:id',
       name: 'sheet',
       props: true,
       component: Sheet,
-      beforeEnter: (to, from, next) => {
-        if (store.getters['isAuthenticated']) {
-          next()
-        } else {
-          store.dispatch('login', { returnTo: to.path })
-        }
-      }
+      beforeEnter: checkAuthentication
     },
     {
       path: '/account',
       name: 'account',
       props: true,
       component: Account,
-      beforeEnter: (to, from, next) => {
-        if (store.getters['isAuthenticated']) {
-          next()
-        } else {
-          store.dispatch('login', { returnTo: to.path })
-        }
-      }
+      beforeEnter: checkAuthentication
     }
   ]
 })
+
+async function checkAuthentication(to, from, next)  {
+  if (store.getters['isAuthenticated']) {
+    console.log('checkRoute isAuthenticated top')
+    next()
+  } else {
+    await store.dispatch('login', { gapi, returnTo: to.path })
+    if (store.getters['isAuthenticated']) {
+      console.log('checkRoute isAuthenticated after login')
+      next()
+    }
+  }
+}
+
+function decodeState(route) {
+  let stateParam = (new URLSearchParams(route.hash.substring(1))).get('state')
+  return stateParam && JSON.parse(atob(stateParam)) || null
+}
+

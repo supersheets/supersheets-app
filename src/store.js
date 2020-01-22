@@ -131,9 +131,13 @@ export default new Vuex.Store({
       let GoogleAuth = await initGoogleOAuth(gapi, options)
       commit('setGoogleAuth', GoogleAuth)
     },
-    async login({dispatch, commit, state, getters}, { returnTo }) {
-      let stateData = btoa(JSON.stringify({ returnTo: returnTo || '/sheets' }))
-      if (state.GoogleAuth) {
+    async login({dispatch, commit, state, getters}, { gapi, returnTo, options, force }) {
+      if (!state.GoogleAuth) {
+        await dispatch('initGoogleOAuth', { gapi, options })
+      }
+      console.log('login', returnTo)
+      let stateData = btoa(JSON.stringify({ returnTo: (returnTo || '/') }))
+      if (force || !getters.isAuthenticated) {
         state.GoogleAuth.signIn({
           prompt: 'select_account',
           scope: GOOGLE_SCOPE,
@@ -150,16 +154,16 @@ export default new Vuex.Store({
       commit('logoutUser')
       return true
     },
-    async handleAuthentication({dispatch, commit, state, getters}, { params }) {
+    async handleAuthentication({dispatch, commit, state, getters}, { returnTo }) {
       while (!state.user) {
         await wait(250)
         console.log('wait')
       }
-      let stateData = (new URLSearchParams(params)).get('state')
-      let { returnTo } = stateData && JSON.parse(atob(stateData)) || { returnTo: '/sheets' }
+      console.log('handleAuthentication', returnTo)
       return { user: state.user, returnTo }
     },
     async checkSession({dispatch, commit, state, getters}, force) {
+      if (!getters.isAuthenticated) return
       if (force || !getters.isTokenValid) {
         let reload = await state.GoogleAuth.currentUser.get().reloadAuthResponse()
         console.log('reload', reload)

@@ -105,10 +105,10 @@ export default {
     async logoutClick() {
       console.log('logout')
       await this.logout()
-      this.$router.push('/')
+      this.$router.push('/logout')
     },
     async switchAccountClick() {
-      await this.login({ returnTo: '/' })
+      await this.login({ returnTo: '/', force: true })
     },
     toggleBurger() {
       this.burger = !this.burger

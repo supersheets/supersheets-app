@@ -9,7 +9,7 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import Prism from 'vue-prismjs'
 import 'prismjs/themes/prism.css'
 
-store.dispatch('initGoogleOAuth', { gapi })
+//store.dispatch('initGoogleOAuth', { gapi })
 
 setInterval(() => { 
   store.dispatch('checkSession') 

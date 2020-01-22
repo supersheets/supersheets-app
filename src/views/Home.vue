@@ -4,7 +4,6 @@
       <div class="container">
         <div class="columns">
           <div class="column">
-
             <nav class="level">
               <div class="level-left">
                 <div class="level-item">
