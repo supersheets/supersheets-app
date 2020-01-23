@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Account from './views/Account.vue'
 import Sheet from './views/Sheet.vue'
+import Login from './views/Login.vue'
 import Callback from './views/Callback.vue'
 import Logout from './views/Logout.vue'
 import store from './store'
@@ -13,6 +14,14 @@ export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      props: (route) => {
+        return { returnTo: route.query['returnTo'] }
+      }
+    },
     {
       path: '/callback',
       name: 'callback',
@@ -55,11 +64,13 @@ async function checkAuthentication(to, from, next)  {
     console.log('checkRoute isAuthenticated top')
     next()
   } else {
-    await store.dispatch('login', { gapi, returnTo: to.path })
-    if (store.getters['isAuthenticated']) {
-      console.log('checkRoute isAuthenticated after login')
-      next()
-    }
+    console.log('checkRoute sending to /login', to.path)
+    next({ path: '/login', query: { returnTo: to.path } })
+    // await store.dispatch('login', { gapi, returnTo: to.path })
+    // if (store.getters['isAuthenticated']) {
+    //   console.log('checkRoute isAuthenticated after login')
+    //   next({ path:})
+    // }
   }
 }
 
