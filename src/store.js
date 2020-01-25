@@ -131,12 +131,21 @@ export default new Vuex.Store({
       let GoogleAuth = await initGoogleOAuth(gapi, options)
       commit('setGoogleAuth', GoogleAuth)
     },
-    async login({dispatch, commit, state, getters}, { gapi, returnTo, options, force }) {
+    async handleAuthentication({dispatch, commit, state, getters}, { gapi, options }) {
       if (!state.GoogleAuth) {
         await dispatch('initGoogleOAuth', { gapi, options })
       }
-      console.log('login', returnTo)
-      let stateData = btoa(JSON.stringify({ returnTo: (returnTo || '/') }))
+      while (!state.user) {
+        await wait(250)
+        console.log('wait')
+      }
+      console.log('handleAuthentication')
+      return { user: state.user }
+    },
+    async login({dispatch, commit, state, getters}, { gapi, stateEncoded, options, force }) {
+      if (!state.GoogleAuth) {
+        await dispatch('initGoogleOAuth', { gapi, options })
+      }
       if (force || !getters.isAuthenticated) {
         state.GoogleAuth.signIn({
           prompt: 'select_account',
@@ -144,23 +153,14 @@ export default new Vuex.Store({
           ux_mode: 'redirect',
           response_type: 'id_token token',
           redirect_uri: `${process.env.VUE_APP_DOMAIN}/callback`,
-          state: stateData
+          state: stateEncoded
         })
       }
     },
     async logout({dispatch, commit, state, getters}, params) {
-      console.log(state.GoogleAuth)
       await state.GoogleAuth.signOut()
       commit('logoutUser')
       return true
-    },
-    async handleAuthentication({dispatch, commit, state, getters}, { returnTo }) {
-      while (!state.user) {
-        await wait(250)
-        console.log('wait')
-      }
-      console.log('handleAuthentication', returnTo)
-      return { user: state.user, returnTo }
     },
     async checkSession({dispatch, commit, state, getters}, force) {
       if (!getters.isAuthenticated) return

@@ -7,6 +7,7 @@ import Login from './views/Login.vue'
 import Callback from './views/Callback.vue'
 import Logout from './views/Logout.vue'
 import store from './store'
+import { encodeState, decodeState } from './lib/oauth'
 
 Vue.use(Router)
 
@@ -19,7 +20,8 @@ export default new Router({
       name: 'login',
       component: Login,
       props: (route) => {
-        return { returnTo: route.query['returnTo'] }
+        // pass the state prop to the Login component
+        return { stateEncoded: route.query['stateEncoded'] }
       }
     },
     {
@@ -27,7 +29,10 @@ export default new Router({
       name: 'callback',
       component: Callback,
       props: (route) => {
-        return { state: decodeState(route) }
+        // Google will return the state query parameter back to 
+        // us as part of the route.hash param named 'state'
+        let stateParamValue = (new URLSearchParams(route.hash.substring(1))).get('state')
+        return { stateDecoded: decodeState(stateParamValue) }
       }
     },
     {
@@ -61,21 +66,14 @@ export default new Router({
 
 async function checkAuthentication(to, from, next)  {
   if (store.getters['isAuthenticated']) {
-    console.log('checkRoute isAuthenticated top')
+    // User is already authenticated, go to the requested route
+    console.log('User currently authenticated')
     next()
   } else {
-    console.log('checkRoute sending to /login', to.path)
-    next({ path: '/login', query: { returnTo: to.path } })
-    // await store.dispatch('login', { gapi, returnTo: to.path })
-    // if (store.getters['isAuthenticated']) {
-    //   console.log('checkRoute isAuthenticated after login')
-    //   next({ path:})
-    // }
+    let stateEncoded = encodeState({ returnTo: to.path || '/' })
+    // User is not authenticated, send user to /login rout
+    console.log(`User is currently unauthenticated, sending to /login, returnTo=${to.path}, stateEncoded=${stateEncoded}`)
+    next({ path: '/login', query: { stateEncoded } })
   }
-}
-
-function decodeState(route) {
-  let stateParam = (new URLSearchParams(route.hash.substring(1))).get('state')
-  return stateParam && JSON.parse(atob(stateParam)) || null
 }
 

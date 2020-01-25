@@ -23,6 +23,10 @@ export async function init(gapi, options) {
   })
 }
 
-// function updateSigninStatus(isSignedIn) {
-//   console.log('updateSigninStatus', isSignedIn)
-// }
+export function decodeState(str) {
+  return str && JSON.parse(atob(str)) || null
+}
+
+export function encodeState(obj) {
+  return btoa(JSON.stringify(obj))
+}

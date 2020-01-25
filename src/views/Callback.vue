@@ -9,13 +9,11 @@ import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
   name: 'callback',
-  props: [ 'state' ],
+  props: [ 'stateDecoded' ],
   async mounted() {
-    await this.$store.dispatch('initGoogleOAuth', { gapi })
-    console.log('state', this.state)
-    let { user, returnTo } = await this.$store.dispatch('handleAuthentication', { returnTo: this.state.returnTo || '/' })
-    console.log('returnTo', returnTo)
-    this.$router.push(returnTo)
+    console.log(`callback component mounted, stateDecoded=${this.stateDecoded}`)
+    let { user } = await this.$store.dispatch('handleAuthentication',  { gapi })
+    this.$router.push(this.stateDecoded && this.stateDecoded.returnTo || '/')
   }
 }
 </script>
