@@ -1,5 +1,6 @@
 <template>
   <div class="logout">
+    Signing out ...
   </div>
 </template>
 
@@ -16,7 +17,7 @@ export default {
   async mounted() {
     console.log("logout component mounted")
     await this.logout()
-    this.$router.push('/')
+    this.$router.push('/sheets')
   }
 }
 </script>

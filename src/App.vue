@@ -1,28 +1,8 @@
 <template>
   <div id="app">   
-    <Navbar/>
     <router-view/>
-    <Notifications/>
-    <Footer/>
   </div>
 </template>
-
-<script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
-
-import Navbar from '@/components/Navbar.vue'
-import Footer from '@/components/Footer.vue'
-import Notifications from '@/components/Notifications.vue'
-
-export default {
-  name: 'app',
-  components: {
-    Navbar,
-    Footer,
-    Notifications
-  }
-}
-</script>
 
 <style lang="scss">  
 nav.breadcrumb {

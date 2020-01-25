@@ -152,7 +152,7 @@ export default new Vuex.Store({
           scope: GOOGLE_SCOPE,
           ux_mode: 'redirect',
           response_type: 'id_token token',
-          redirect_uri: `${process.env.VUE_APP_DOMAIN}/callback`,
+          redirect_uri: `${process.env.VUE_APP_DOMAIN}/auth/callback`,
           state: stateEncoded
         })
       }

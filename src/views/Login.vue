@@ -1,10 +1,11 @@
 <template>
   <div class="login">
+    Signing in ...
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import { decodeState } from '@/lib/oauth'
 
 export default {
@@ -16,10 +17,6 @@ export default {
     ])
   },
   methods: {
-    ...mapMutations([
-      'addNotification',
-      'removeNotification'
-    ]),
     ...mapActions([
       'login'
     ]),

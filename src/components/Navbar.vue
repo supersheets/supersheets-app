@@ -12,7 +12,7 @@
     <div id="navbarMain" :class="{'navbar-menu':true, 'is-active':burger}">
       <div class="navbar-start">
         <div class="navbar-item" v-if="user">
-          <router-link to="/">My Supersheets</router-link>
+          <router-link to="/sheets">Sheets</router-link>
         </div>
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
@@ -58,9 +58,9 @@
               Switch account
             </a>
             <hr class="navbar-divider"/>
-            <router-link class="navbar-item" to="/account">Account</router-link>
+            <router-link class="navbar-item" to="/user/account">Account</router-link>
             <a class="navbar-item" v-on:click="logoutClick">
-              Log out
+              Sign out
             </a>
           </div>
         </div>
@@ -72,6 +72,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import { encodeState } from '@/lib/oauth'
 
 export default {
   name: 'navbar',
@@ -100,15 +101,15 @@ export default {
     ]),
     async loginClick() {
       await this.login({})
-      this.$router.push('/')
+      this.$router.push('/auth/login')
     },
     async logoutClick() {
       console.log('logout')
       await this.logout()
-      this.$router.push('/logout')
+      this.$router.push('/auth/logout')
     },
     async switchAccountClick() {
-      await this.login({ returnTo: '/', force: true })
+      await this.login({ stateEncoded: encodeState({ returnTo: '/sheets'}), force: true })
     },
     toggleBurger() {
       this.burger = !this.burger
